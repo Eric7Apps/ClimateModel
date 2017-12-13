@@ -9,14 +9,11 @@ using System.Text;
 using System.Collections.Generic;
 // using System.Threading.Tasks;
 using System.IO;
+///////////
+using CodeEditor;
 
 
-
-// The compiler will create a default namespace if you don't.
-// namespace CodeEditor
-// {
-
-namespace CodeEditor
+namespace ECCommon
 {
   class ConfigureFile
   {
