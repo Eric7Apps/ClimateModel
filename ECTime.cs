@@ -4,7 +4,7 @@ using System;
 using System.Text;
 
 
-namespace CodeEditor
+namespace ECCommon
 {
   class ECTime
   {
