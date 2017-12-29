@@ -58,7 +58,7 @@ namespace ECCommon
 
 
 
-  internal void SetString( string KeyWord, string Value ) // , bool WriteFile )
+  internal void SetString( string KeyWord, string Value, bool WriteFile )
     {
     KeyWord = KeyWord.ToLower().Trim();
 
@@ -70,7 +70,7 @@ namespace ECCommon
 
     CDictionary[KeyWord] = Value;
 
-    // if( WriteFile )
+    if( WriteFile )
       WriteToTextFile();
 
     }
