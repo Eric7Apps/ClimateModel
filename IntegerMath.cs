@@ -79,13 +79,16 @@ namespace ECCommon
   private string StatusString = "";
   private bool Cancelled = false;
   private Integer[] GeneralBaseArray;
+  private Integer CurrentModReductionBase;
   private Integer TempForModPower;
   private Integer TestForModPower;
+  private Integer TestForModReduction2;
+  private Integer TestForModReduction2ForModPower;
   private Integer XForModPower;
   private Integer ExponentCopy;
   private Integer AccumulateBase;
   private int MaxModPowerIndex = 0;
-  // private uint GBaseSmallModulus = 0;
+// private uint GBaseSmallModulus = 0;
 
 
 
@@ -143,8 +146,11 @@ namespace ECCommon
     ExponentCopy = new Integer();
     TempForModPower = new Integer();
     TestForModPower = new Integer();
+    TestForModReduction2 = new Integer();
+    TestForModReduction2ForModPower = new Integer();
     AccumulateBase = new Integer();
     TestForModInverse1 = new Integer();
+    CurrentModReductionBase = new Integer();
 
     MakePrimeArray();
     }
@@ -581,8 +587,6 @@ namespace ECCommon
   internal int MultiplyUIntFromCopy( Integer Result, Integer FromCopy, ulong ToMul )
     {
     int FromCopyIndex = FromCopy.GetIndex();
-    // The compiler knows that FromCopyIndex doesn't change here so
-    // it can do its range checking on the for-loop before it starts.
     Result.SetIndex( FromCopyIndex );
     for( int Column = 0; Column <= FromCopyIndex; Column++ )
       Scratch[Column] = ToMul * FromCopy.GetD( Column );
@@ -1030,7 +1034,7 @@ namespace ECCommon
       if( Where <= 3 )
         {
         if( Where < 2 ) // This can't happen.
-          throw( new Exception( "Bug: GetMod64(): Where < 2." ));
+          throw( new Exception( "GetMod64(): Where < 2." ));
 
         if( Where == 2 )
           {
@@ -1540,7 +1544,7 @@ namespace ECCommon
     }
     catch( Exception ) // Except )
       {
-      // "Bug in MultiplyTop: " + Except.Message
+      // "Exception in MultiplyTop: " + Except.Message
       }
     */
     }
@@ -1570,7 +1574,7 @@ namespace ECCommon
     }
     catch( Exception ) // Except )
       {
-      // "Bug in MultiplyTopOne: " + Except.Message
+      // "Exception in MultiplyTopOne: " + Except.Message
       }
       */
     }
@@ -2029,7 +2033,7 @@ namespace ECCommon
       // First Multiply() for each digit.
       Multiply( TestForDivide1, DivideBy );
       // if( ToDivide.ParamIsGreater( TestForDivide1 ))
-      //   throw( new Exception( "Bug here in LongDivide3()." ));
+      //   throw( new Exception( "Problem here in LongDivide3()." ));
       Remainder.Copy( ToDivide );
       Subtract( Remainder, TestForDivide1 );
       MaxValue = Remainder.GetD( Remainder.GetIndex()) << 32;
@@ -2469,7 +2473,7 @@ namespace ECCommon
     Multiply( TestForModInverse1, TestForModInverse2 );
     Divide( TestForModInverse1, Modulus, Quotient, Remainder );
     if( !Remainder.IsOne())  // By the definition of Multiplicative inverse:
-      throw( new Exception( "Bug. MultInverse is wrong: " + ToString10( Remainder )));
+      throw( new Exception( "MultInverse is wrong: " + ToString10( Remainder )));
 
     // Worker.ReportProgress( 0, "MultInverse is the right number: " + ToString10( MultInverse ));
     return true;
@@ -2481,15 +2485,19 @@ namespace ECCommon
     {
     // Also see Rabin-Miller test.
     // Also see Solovay-Strassen test.
-    // Use bigger primes for Fermat test because the modulus can't
-    // be too small.  And also it's more likely to be congruent to 1
-    // with a very small modulus.  In other words it's a lot more likely
-    // to appear to be a prime when it isn't.  This Fermat primality test
-    // is usually described as using random primes to test with, and you
-    // could do it that way too.  Except that this Fermat test is being
-    // used to find random primes, so...
-    // A common way of doing this is to use a multiple of
-    // several primes as the base, like 2 * 3 * 5 * 7 = 210.
+    // Use bigger primes for Fermat test because the
+    // modulus can't be too small.  And also it's
+    // more likely to be congruent to 1 with a very
+    // small modulus.  In other words it's a lot more
+    // likely to appear to be a prime when it isn't.
+    // This Fermat primality test is usually
+    // described as using random primes to test with,
+    // and you could do it that way too.  Except that
+    // this Fermat test is being used to find random
+    // primes, so...
+    // A common way of doing this is to use a multiple
+    // of several primes as the base, like
+    // 2 * 3 * 5 * 7 = 210.
     int StartAt = IntegerMath.PrimeArrayLength - (1024 * 16); // Or much bigger.
     if( StartAt < 100 )
       StartAt = 100;
@@ -2531,6 +2539,8 @@ namespace ECCommon
     Fermat1.Copy( ToTest );
     SubtractULong( Fermat1, 1 );
     TestFermat.SetFromULong( Base );
+
+    // ModularPower( Result, Exponent, Modulus, UsePresetBaseArray )
     ModularPower( TestFermat, Fermat1, ToTest, false );
     // if( !TestFermat.IsEqual( Fermat2 ))
       // throw( new Exception( "!TestFermat.IsEqual( Fermat2 )." ));
@@ -2597,7 +2607,7 @@ namespace ECCommon
 
   // This is the standard modular power algorithm that
   // you could find in any reference, but its use of
-  // the new modular reduction algorithm is new.
+  // the new modular reduction algorithm is new (in 2015).
   // The square and multiply method is in Wikipedia:
   // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
   // x^n = (x^2)^((n - 1)/2) if n is odd.
@@ -2646,7 +2656,17 @@ namespace ECCommon
       if( (ExponentCopy.GetD( 0 ) & 1) == 1 ) // If the bottom bit is 1.
         {
         Multiply( Result, XForModPower );
+
+        // if( Result.ParamIsGreater( CurrentModReductionBase ))
+        // TestForModReduction2.Copy( Result );
+
         ModularReduction( TempForModPower, Result );
+        // ModularReduction2( TestForModReduction2ForModPower, TestForModReduction2 );
+        // if( !TestForModReduction2ForModPower.IsEqual( TempForModPower ))
+          // {
+          // throw( new Exception( "Mod Reduction 2 is not right." ));
+          // }
+
         Result.Copy( TempForModPower );
         }
 
@@ -2656,6 +2676,9 @@ namespace ECCommon
 
       // Square it.
       Multiply( XForModPower, XForModPower );
+
+      // Time this.
+      // if( XForModPower.ParamIsGreater( CurrentModReductionBase ))
       ModularReduction( TempForModPower, XForModPower );
       XForModPower.Copy( TempForModPower );
       }
@@ -2678,6 +2701,149 @@ namespace ECCommon
     if( Quotient.GetIndex() > 1 )
       throw( new Exception( "This never happens. The quotient index is never more than 1." ));
 
+    }
+
+
+/*
+  // Copyright Eric Chauvin 2015 - 2018.
+  private int ModularReduction( Integer Result, Integer ToReduce )
+    {
+    try
+    {
+    if( GeneralBaseArray == null )
+      throw( new Exception( "SetupGeneralBaseArray() should have already been called." ));
+
+    Result.SetToZero();
+    int HowManyToAdd = ToReduce.GetIndex() + 1;
+    if( HowManyToAdd > GeneralBaseArray.Length )
+      throw( new Exception( "The Input number should have been reduced first. HowManyToAdd > GeneralBaseArray.Length" ));
+
+    int BiggestIndex = 0;
+    for( int Count = 0; Count < HowManyToAdd; Count++ )
+      {
+      // The size of the numbers in GeneralBaseArray are
+      // all less than the size of GeneralBase.
+      // This multiplication by a uint is with a number
+      // that is not bigger than GeneralBase.  Compare
+      // this with the two full Muliply() calls done on
+      // each digit of the quotient in LongDivide3().
+      // AccumulateBase is set to a new value here.
+      int CheckIndex = MultiplyUIntFromCopy( AccumulateBase, GeneralBaseArray[Count], ToReduce.GetD( Count ));
+      if( CheckIndex > BiggestIndex )
+        BiggestIndex = CheckIndex;
+
+      Result.Add( AccumulateBase );
+      }
+
+    return Result.GetIndex();
+    }
+    catch( Exception Except )
+      {
+      throw( new Exception( "Exception in ModularReduction(): " + Except.Message ));
+      }
+    }
+*/
+
+
+
+  // Copyright Eric Chauvin 2015 - 2018.
+  private int ModularReduction( Integer Result, Integer ToReduce )
+    {
+    try
+    {
+    if( ToReduce.ParamIsGreater( CurrentModReductionBase ))
+      {
+      Result.Copy( ToReduce );
+      return Result.GetIndex();
+      }
+
+    if( GeneralBaseArray == null )
+      throw( new Exception( "SetupGeneralBaseArray() should have already been called." ));
+
+    Result.SetToZero();
+    int TopOfToReduce = ToReduce.GetIndex() + 1;
+    if( TopOfToReduce > GeneralBaseArray.Length )
+      throw( new Exception( "The Input number should have been reduced first. HowManyToAdd > GeneralBaseArray.Length" ));
+
+    // If it gets this far then ToReduce is at
+    // least this big.
+    int HighestCopyIndex = CurrentModReductionBase.GetIndex();
+    for( int Count = 0; Count < HighestCopyIndex; Count++ )
+      Result.SetD( Count, ToReduce.GetD( Count ));
+
+    Result.SetIndex( HighestCopyIndex - 1 );
+
+    int BiggestIndex = 0;
+    for( int Count = HighestCopyIndex; Count < TopOfToReduce; Count++ )
+      {
+      // The size of the numbers in GeneralBaseArray
+      // are all less than the size of GeneralBase.
+      // This multiplication by a uint is with a
+      // number that is not bigger than GeneralBase.
+      // Compare this with the two full Muliply()
+      // calls done on each digit of the quotient
+      // in LongDivide3().
+
+      // AccumulateBase is set to a new value here.
+      int CheckIndex = MultiplyUIntFromCopy( AccumulateBase, GeneralBaseArray[Count], ToReduce.GetD( Count ));
+      if( CheckIndex > BiggestIndex )
+        BiggestIndex = CheckIndex;
+
+      Result.Add( AccumulateBase );
+      }
+
+    return Result.GetIndex();
+    }
+    catch( Exception Except )
+      {
+      throw( new Exception( "Exception in ModularReduction(): " + Except.Message ));
+      }
+    }
+
+
+
+  internal void SetupGeneralBaseArray( Integer GeneralBase )
+    {
+    // The word 'Base' comes from the base of a number
+    // system.  Like normal decimal numbers have base
+    // 10, binary numbers have base 2, etc.
+
+    CurrentModReductionBase.Copy( GeneralBase );
+
+    // The input to the accumulator can be twice the bit length of GeneralBase.
+    int HowMany = ((GeneralBase.GetIndex() + 1) * 2) + 10; // Plus some extra for carries...
+
+    if( GeneralBaseArray == null )
+      {
+      GeneralBaseArray = new Integer[HowMany];
+      }
+
+    if( GeneralBaseArray.Length < HowMany )
+      {
+      GeneralBaseArray = new Integer[HowMany];
+      }
+
+    Integer Base = new Integer();
+    Base.SetFromULong( 256 ); // 0x100
+    MultiplyUInt( Base, 256 ); // 0x10000
+    MultiplyUInt( Base, 256 ); // 0x1000000
+    MultiplyUInt( Base, 256 ); // 0x100000000 is the base of this number system.
+    // 0x1 0000 0000
+
+    Integer BaseValue = new Integer();
+    BaseValue.SetFromULong( 1 );
+
+    for( int Count = 0; Count < HowMany; Count++ )
+      {
+      if( GeneralBaseArray[Count] == null )
+        GeneralBaseArray[Count] = new Integer();
+
+      Divide( BaseValue, GeneralBase, Quotient, Remainder );
+      GeneralBaseArray[Count].Copy( Remainder );
+
+      BaseValue.Copy( Remainder );
+      Multiply( BaseValue, Base );
+      }
     }
 
 
@@ -2727,93 +2893,6 @@ namespace ECCommon
 
     return (uint)Result;
     }
-
-
-
-
-  // Copyright Eric Chauvin 2015 - 2018.
-  private int ModularReduction( Integer Result, Integer ToReduce )
-    {
-    try
-    {
-    if( GeneralBaseArray == null )
-      throw( new Exception( "SetupGeneralBaseArray() should have already been called." ));
-
-    Result.SetToZero();
-    int HowManyToAdd = ToReduce.GetIndex() + 1;
-    if( HowManyToAdd > GeneralBaseArray.Length )
-      throw( new Exception( "Bug. The Input number should have been reduced first. HowManyToAdd > GeneralBaseArray.Length" ));
-
-    int BiggestIndex = 0;
-    for( int Count = 0; Count < HowManyToAdd; Count++ )
-      {
-      // The size of the numbers in GeneralBaseArray are
-      // all less than the size of GeneralBase.
-      // This multiplication by a uint is with a number
-      // that is not bigger than GeneralBase.  Compare
-      // this with the two full Muliply() calls done on
-      // each digit of the quotient in LongDivide3().
-      // AccumulateBase is set to a new value here.
-      int CheckIndex = MultiplyUIntFromCopy( AccumulateBase, GeneralBaseArray[Count], ToReduce.GetD( Count ));
-      if( CheckIndex > BiggestIndex )
-        BiggestIndex = CheckIndex;
-
-      Result.Add( AccumulateBase );
-      }
-
-    return Result.GetIndex();
-    }
-    catch( Exception Except )
-      {
-      throw( new Exception( "Exception in ModularReduction(): " + Except.Message ));
-      }
-    }
-
-
-
-
-  internal void SetupGeneralBaseArray( Integer GeneralBase )
-    {
-    // The input to the accumulator can be twice the bit length of GeneralBase.
-    int HowMany = ((GeneralBase.GetIndex() + 1) * 2) + 10; // Plus some extra for carries...
-    if( GeneralBaseArray == null )
-      {
-      GeneralBaseArray = new Integer[HowMany];
-      }
-
-    if( GeneralBaseArray.Length < HowMany )
-      {
-      GeneralBaseArray = new Integer[HowMany];
-      }
-
-    Integer Base = new Integer();
-    Integer BaseValue = new Integer();
-    Base.SetFromULong( 256 ); // 0x100
-    MultiplyUInt( Base, 256 ); // 0x10000
-    MultiplyUInt( Base, 256 ); // 0x1000000
-    MultiplyUInt( Base, 256 ); // 0x100000000 is the base of this number system.
-    BaseValue.SetFromULong( 1 );
-    for( int Count = 0; Count < HowMany; Count++ )
-      {
-      if( GeneralBaseArray[Count] == null )
-        GeneralBaseArray[Count] = new Integer();
-
-      Divide( BaseValue, GeneralBase, Quotient, Remainder );
-      GeneralBaseArray[Count].Copy( Remainder );
-      // If this ever happened it would be a bug because
-      // the point of copying the Remainder in to BaseValue
-      // is to keep it down to a reasonable size.
-      // And Base here is one bit bigger than a uint.
-      if( Base.ParamIsGreater( Quotient ))
-        throw( new Exception( "Bug. This never happens: Base.ParamIsGreater( Quotient )" ));
-
-      // Keep it to mod GeneralBase so Divide() doesn't
-      // have to do so much work.
-      BaseValue.Copy( Remainder );
-      Multiply( BaseValue, Base );
-      }
-    }
-
 
 
 
@@ -2894,12 +2973,11 @@ namespace ECCommon
       // so this has to be 1.
       // I've only seen this happen once.  Were the primes P and Q not
       // really primes?
-      throw( new Exception( "This is a bug. Remainder has to be 1: " + ToString10( Remainder ) ));
+      throw( new Exception( "Remainder has to be 1: " + ToString10( Remainder ) ));
       }
 
     return true;
     }
-
 
 
 
@@ -2912,6 +2990,10 @@ namespace ECCommon
 
   }
 }
+
+
+
+
 
 
 
