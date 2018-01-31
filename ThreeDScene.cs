@@ -160,10 +160,11 @@ namespace ClimateModel
     Vector3D LookDirection = PCamera.LookDirection;
     Vector3D UpDirection = PCamera.UpDirection;
 
+    QuaternionEC.Vector3 Up = new QuaternionEC.Vector3();
+    QuaternionEC.Vector3 ResultPoint = new QuaternionEC.Vector3();
+
     QuaternionEC.QuaternionRec Axis = new QuaternionEC.QuaternionRec();
-    QuaternionEC.QuaternionRec StartPoint = new QuaternionEC.QuaternionRec();
     QuaternionEC.QuaternionRec MiddlePoint = new QuaternionEC.QuaternionRec();
-    QuaternionEC.QuaternionRec ResultPoint = new QuaternionEC.QuaternionRec();
     QuaternionEC.QuaternionRec RotationQ = new QuaternionEC.QuaternionRec();
     QuaternionEC.QuaternionRec InverseRotationQ = new QuaternionEC.QuaternionRec();
 
@@ -172,10 +173,9 @@ namespace ClimateModel
     Axis.Z = LookDirection.Z;
     Axis.W = 0;
 
-    StartPoint.X = UpDirection.X;
-    StartPoint.Y = UpDirection.Y;
-    StartPoint.Z = UpDirection.Z;
-    StartPoint.W = 0;
+    Up.X = UpDirection.X;
+    Up.Y = UpDirection.Y;
+    Up.Z = UpDirection.Z;
 
     QuaternionEC.SetAsRotation( ref RotationQ,
                                 ref Axis,
@@ -183,10 +183,10 @@ namespace ClimateModel
 
     QuaternionEC.Inverse( ref InverseRotationQ, ref RotationQ );
 
-    QuaternionEC.Rotate( ref ResultPoint,
+    QuaternionEC.RotateVector3( ref ResultPoint,
                          ref RotationQ,
                          ref InverseRotationQ,
-                         ref StartPoint,
+                         ref Up,
                          ref MiddlePoint );
 
     UpDirection.X = ResultPoint.X;
