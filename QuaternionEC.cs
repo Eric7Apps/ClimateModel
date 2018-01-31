@@ -433,8 +433,8 @@ namespace ClimateModel
     }
 
 
-  /*
-  internal static void MultiplyWithLeftWZero( ref QuaternionRec Result, ref QuaternionRec L, ref QuaternionRec R )
+
+  internal static void MultiplyWithLeftVector3( ref QuaternionRec Result, ref Vector3 L, ref QuaternionRec R )
     {
     //////////////////////////////////////
     // Make sure Result is not the same object
@@ -460,7 +460,7 @@ namespace ClimateModel
     LeftTest.X = L.X;
     LeftTest.Y = L.Y;
     LeftTest.Z = L.Z;
-    LeftTest.W = L.W;
+    LeftTest.W = 0; // L.W;
 
     RightTest.X = R.X;
     RightTest.Y = R.Y;
@@ -473,6 +473,59 @@ namespace ClimateModel
     double SmallNumber = 0.001d;
 
     if( !DoubleIsAlmostEqual( ResultTest.X, Result.X, SmallNumber ))
+      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.X != Result.X." ));
+
+    if( !DoubleIsAlmostEqual( ResultTest.Y, Result.Y, SmallNumber ))
+      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.Y != Result.Y." ));
+
+    if( !DoubleIsAlmostEqual( ResultTest.Z, Result.Z, SmallNumber ))
+      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.Z != Result.Z." ));
+
+    if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
+      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.W != Result.W." ));
+
+    /////////////////////////
+    }
+
+
+
+  internal static void MultiplyWithResultVector3( ref Vector3 Result, ref QuaternionRec L, ref QuaternionRec R )
+    {
+    //////////////////////////////////////
+    // Make sure Result is not the same object
+    // as L or R.  (It can't be here, since
+    // it's a Vector3.)
+    /////////////////////////////////////
+
+    Result.X =  (L.X * R.W) +  (L.W * R.X) +  (L.Y * R.Z) + (-L.Z * R.Y);
+    Result.Y = (-L.X * R.Z) +  (L.Y * R.W) +  (L.Z * R.X) +  (L.W * R.Y);
+    Result.Z =  (L.X * R.Y) + (-L.Y * R.X) +  (L.Z * R.W) +  (L.W * R.Z);
+
+    // It doesn't need this calculation:
+    // Result.W = (-L.X * R.X) + (-L.Y * R.Y) + (-L.Z * R.Z) +  (L.W * R.W);
+
+    ///////////////////////
+    // Test:
+    Quaternion ResultTest = new Quaternion();
+    Quaternion LeftTest = new Quaternion();
+    Quaternion RightTest = new Quaternion();
+
+    LeftTest.X = L.X;
+    LeftTest.Y = L.Y;
+    LeftTest.Z = L.Z;
+    LeftTest.W = L.W;
+
+    RightTest.X = R.X;
+    RightTest.Y = R.Y;
+    RightTest.Z = R.Z;
+    RightTest.W = R.W;
+
+    ResultTest = Quaternion.Multiply( LeftTest, RightTest );
+
+    // How small can this be?
+    double SmallNumber = 0.00000000001d;
+
+    if( !DoubleIsAlmostEqual( ResultTest.X, Result.X, SmallNumber ))
       throw( new Exception( "Multiply: ResultTest.X != Result.X." ));
 
     if( !DoubleIsAlmostEqual( ResultTest.Y, Result.Y, SmallNumber ))
@@ -481,12 +534,12 @@ namespace ClimateModel
     if( !DoubleIsAlmostEqual( ResultTest.Z, Result.Z, SmallNumber ))
       throw( new Exception( "Multiply: ResultTest.Z != Result.Z." ));
 
-    if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.W != Result.W." ));
+    // if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
+      // throw( new Exception( "Multiply: ResultTest.W != Result.W." ));
 
     /////////////////////////
     }
-    */
+
 
 
   internal static void SetAsRotation( ref QuaternionRec Result, 
@@ -521,12 +574,28 @@ namespace ClimateModel
 
     // Make sure the Result of Multiply is not the
     // same object as Left or Right.
- 
-    // Test this ===========
-    // MultiplyWithLeftWZero( ref MiddlePoint, ref StartPoint, ref InverseRotationQ );
- 
+
     Multiply( ref MiddlePoint, ref StartPoint, ref InverseRotationQ );
     Multiply( ref ResultPoint, ref RotationQ, ref MiddlePoint );
+    }
+
+
+
+  internal static void RotateVector3( ref Vector3 ResultPoint,
+                               ref QuaternionRec RotationQ,
+                               ref QuaternionRec InverseRotationQ,
+                               ref Vector3 StartPoint,
+                               ref QuaternionRec MiddlePoint )
+    {
+    // This function might be called millions of
+    // times in a loop, so InverseRotationQ is
+    // already set.
+
+    // Make sure the Result of Multiply is not the
+    // same object as Left or Right.
+
+    MultiplyWithLeftVector3( ref MiddlePoint, ref StartPoint, ref InverseRotationQ );
+    MultiplyWithResultVector3( ref ResultPoint, ref RotationQ, ref MiddlePoint );
     }
 
 
