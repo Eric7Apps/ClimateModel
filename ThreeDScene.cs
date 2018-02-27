@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Media.Imaging;
 
 // For testing.
 // using System.Windows.Forms;
@@ -25,6 +26,8 @@ namespace ClimateModel
   private AmbientLight SunLight = new AmbientLight();
   private Model3DGroup Main3DGroup = new Model3DGroup();
   private ModelVisual3D MainModelVisual3D = new ModelVisual3D();
+  private ReferenceFrame RefFrame;
+
 
 
 
@@ -40,7 +43,9 @@ namespace ClimateModel
     {
     MForm = UseForm;
 
+    RefFrame = new ReferenceFrame( MForm );
     SetupScene();
+
     }
     catch( Exception Except )
       {
@@ -64,7 +69,9 @@ namespace ClimateModel
     {
     SetupCamera();
     SetupSunlight();
-    MakeSurface();
+    // MakeSurface();
+
+    RefFrame.MakeGeometryModels( Main3DGroup );
 
     MainModelVisual3D.Content = Main3DGroup;
 
@@ -88,13 +95,13 @@ namespace ClimateModel
   private void SetupCamera()
     {
     // Positive Z values go toward the viewer.
-    PCamera.Position = new Point3D( 0, 0, 10 );
+    PCamera.Position = new Point3D( 0, 0, 15 );
     PCamera.LookDirection = new Vector3D( 0, 0, -1 );
     PCamera.UpDirection = new Vector3D( 0, 1, 0 );
     PCamera.FieldOfView = 60;
     // Clipping planes:
     PCamera.FarPlaneDistance = 10000;
-    PCamera.NearPlaneDistance = 1;
+    PCamera.NearPlaneDistance = 0.5;
     }
 
 
@@ -223,7 +230,7 @@ namespace ClimateModel
 
     // X Cross Y = Z.  The Right-hand rule.
 
-    QuaternionEC.CrossProduct( ref Cross, 
+    QuaternionEC.CrossProduct( ref Cross,
                                ref Look,
                                ref Up );
 
@@ -272,36 +279,116 @@ namespace ClimateModel
 
 
 
+  internal void ShiftLeftRight( double HowFar )
+    {
+    Vector3D LookDirection = PCamera.LookDirection;
+    Vector3D UpDirection = PCamera.UpDirection;
+
+    QuaternionEC.QuaternionRec Cross = new QuaternionEC.QuaternionRec();
+    QuaternionEC.QuaternionRec Look = new QuaternionEC.QuaternionRec();
+    QuaternionEC.QuaternionRec Up = new QuaternionEC.QuaternionRec();
+
+    Look.X = LookDirection.X;
+    Look.Y = LookDirection.Y;
+    Look.Z = LookDirection.Z;
+    Look.W = 0;
+
+    Up.X = UpDirection.X;
+    Up.Y = UpDirection.Y;
+    Up.Z = UpDirection.Z;
+    Up.W = 0;
+
+    // X Cross Y = Z.  The Right-hand rule.
+
+    QuaternionEC.CrossProduct( ref Cross,
+                               ref Look,
+                               ref Up );
+
+    Vector3D CrossVect = new Vector3D();
+    CrossVect.X = Cross.X;
+    CrossVect.Y = Cross.Y;
+    CrossVect.Z = Cross.Z;
+
+    Point3D Position = PCamera.Position;
+    Vector3D MoveBy = new Vector3D();
+    Point3D MoveTo = new Point3D();
+
+    MoveBy = Vector3D.Multiply( HowFar, CrossVect );
+    MoveTo = Point3D.Add( Position, MoveBy );
+    PCamera.Position = MoveTo;
+    }
+
+
+
+  internal void ShiftUpDown( double HowFar )
+    {
+    Vector3D UpDirection = PCamera.UpDirection;
+
+    Point3D Position = PCamera.Position;
+    Vector3D MoveBy = new Vector3D();
+    Point3D MoveTo = new Point3D();
+
+    MoveBy = Vector3D.Multiply( HowFar, UpDirection );
+    MoveTo = Point3D.Add( Position, MoveBy );
+    PCamera.Position = MoveTo;
+    }
+
+
+
+
   private void MakeSurface()
     {
     try
     {
-    // Make a triangle surface.
     MeshGeometry3D TriSurface = new MeshGeometry3D();
 
-    TriSurface.Positions.Add( new Point3D( 0, 0, 0 ));
-    TriSurface.Positions.Add( new Point3D( 1.0, 0, 0 ));
-    TriSurface.Positions.Add( new Point3D( 0, 1.0, 0 ));
+    // Texture Coordinates:
+    // https://msdn.microsoft.com/en-us/library/system.windows.media.media3d.meshgeometry3d.texturecoordinates(v=vs.110).aspx
+
+    // For texture coordinates in 2D "Bitmap image
+    // space", so to speak, Y starts at the top and
+    // goes downward.
+    Point TopLeft = new Point( 0, 0 );
+    Point BottomRight = new Point( 1, 1 );
+    Point TopRight = new Point( 1, 0 );
+    Point BottomLeft = new Point( 0, 1 );
+
+    // In this 3D space Y goes upward.
+    Point3D TopLeft3D = new Point3D( 0, 1, 0 );
+    Point3D BottomRight3D = new Point3D( 1, 0, 0 );
+    Point3D TopRight3D = new Point3D( 1, 1, 0 );
+    Point3D BottomLeft3D = new Point3D( 0, 0, 0 );
+
+    TriSurface.Positions.Add( BottomLeft3D );
+    TriSurface.Positions.Add( BottomRight3D );
+    TriSurface.Positions.Add( TopLeft3D );
+    TriSurface.Positions.Add( TopRight3D );
+
+    TriSurface.TextureCoordinates.Add( BottomLeft );
+    TriSurface.TextureCoordinates.Add( BottomRight );
+    TriSurface.TextureCoordinates.Add( TopLeft );
+    TriSurface.TextureCoordinates.Add( TopRight );
 
     // Counterclockwise winding goes toward the viewer.
     TriSurface.TriangleIndices.Add( 0 );
     TriSurface.TriangleIndices.Add( 1 );
     TriSurface.TriangleIndices.Add( 2 );
 
-    // Vector3D.CrossProduct()
+    TriSurface.TriangleIndices.Add( 1 );
+    TriSurface.TriangleIndices.Add( 3 );
+    TriSurface.TriangleIndices.Add( 2 );
 
     // Positive Z values go toward the viewer.
     // So the normal is toward the viewer.
-    TriSurface.Normals.Add( new Vector3D( 0, 0, 1 ));
-    TriSurface.Normals.Add( new Vector3D( 0, 0, 1 ));
-    TriSurface.Normals.Add( new Vector3D( 0, 0, 1 ));
-
-    TriSurface.TextureCoordinates.Add( new Point( 1, 0 ));
-    TriSurface.TextureCoordinates.Add( new Point( 1, 1 ));
-    TriSurface.TextureCoordinates.Add( new Point( 0, 1 ));
+    Vector3D BasicNormal = new Vector3D( 0, 0, 1 );
+    TriSurface.Normals.Add( BasicNormal );
+    TriSurface.Normals.Add( BasicNormal );
+    TriSurface.Normals.Add( BasicNormal );
+    TriSurface.Normals.Add( BasicNormal );
 
     DiffuseMaterial SolidMat = new DiffuseMaterial();
-    SolidMat.Brush = Brushes.Blue;
+    // SolidMat.Brush = Brushes.Blue;
+    SolidMat.Brush = SetTextureImageBrush();
 
     GeometryModel3D GeoMod = new GeometryModel3D();
     GeoMod.Geometry = TriSurface;
@@ -312,10 +399,44 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDScene.MakeCube(): " + Except.Message );
+      MForm.ShowStatus( "Exception in ThreeDScene.MakeSurface(): " + Except.Message );
       return;
       }
     }
+
+
+
+
+  private ImageBrush SetTextureImageBrush()
+    {
+    // Imaging Overview:
+    // https://docs.microsoft.com/en-us/dotnet/framework/wpf/graphics-multimedia/imaging-overview
+
+    // Imaging Namespace:
+    // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging?view=netframework-4.7.1
+
+    // ImageDrawing:
+    // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imagedrawing?view=netframework-4.7.1
+
+    BitmapImage BMapImage = new BitmapImage();
+
+    // Things have to be in this Begin-end block.
+    BMapImage.BeginInit();
+
+    BMapImage.UriSource = new Uri( "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg" );
+    // BMapImage.UriSource = new Uri( "C:\\Eric\\ClimateModel\\bin\\Release\\TestImage.jpg" );
+
+    // BMapImage.DecodePixelWidth = 200;
+
+    BMapImage.EndInit();
+
+    // ImageBrush:
+    // https://msdn.microsoft.com/en-us/library/system.windows.media.imagebrush(v=vs.110).aspx
+    ImageBrush ImgBrush = new ImageBrush();
+    ImgBrush.ImageSource = BMapImage;
+    return ImgBrush;
+    }
+
 
 
 
@@ -339,5 +460,9 @@ namespace ClimateModel
 
   }
 }
+
+
+
+
 
 
