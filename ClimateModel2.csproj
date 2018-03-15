@@ -6,7 +6,6 @@
 <!-- Import this, sort of like #include. -->
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
 
-
 <!--
 Wikipedia uses past tense _was_ for describing
 MSBuild.  The last stable release for MSBuild
@@ -70,7 +69,8 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="TriangleStack.cs" />
+    <Compile Include="Tetrahedron.cs" />
+    <Compile Include="ThreeDSphere.cs" />
     <Compile Include="NumbersEC.cs" />
     <Compile Include="QuaternionEC.cs" />
     <Compile Include="EarthGeoid.cs" />
@@ -137,12 +137,3 @@ the Designer.
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
-
-
-
-
-
-
-
-
-
