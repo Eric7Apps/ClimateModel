@@ -227,6 +227,16 @@ namespace ClimateModel
         Scene.RotateLeftRight( Angle );
         }
 
+      if( e.KeyCode == Keys.PageUp )
+        {
+        Scene.MoveForwardBack( 30.0 );
+        }
+
+      if( e.KeyCode == Keys.PageDown )
+        {
+        Scene.MoveForwardBack( -30.0 );
+        }
+
       return;
       }
 
@@ -271,12 +281,12 @@ namespace ClimateModel
     if( e.KeyCode == Keys.PageUp )
       {
       // MessageBox.Show( "Page up.", MainForm.MessageBoxTitle, MessageBoxButtons.OK );
-      Scene.MoveForwardBack( 3.0 );
+      Scene.MoveForwardBack( 2.0 );
       }
 
     if( e.KeyCode == Keys.PageDown )
       {
-      Scene.MoveForwardBack( -3.0 );
+      Scene.MoveForwardBack( -2.0 );
       }
 
     if( e.KeyCode == Keys.Left )
@@ -308,7 +318,3 @@ namespace ClimateModel
 
   }
 }
-
-
-
-
