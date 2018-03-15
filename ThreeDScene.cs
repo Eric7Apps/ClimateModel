@@ -22,8 +22,6 @@ namespace ClimateModel
   {
   private MainForm MForm;
   private PerspectiveCamera PCamera = new PerspectiveCamera();
-  // private PointLight SunLight = new PointLight();
-  private AmbientLight SunLight = new AmbientLight();
   private Model3DGroup Main3DGroup = new Model3DGroup();
   private ModelVisual3D MainModelVisual3D = new ModelVisual3D();
   private ReferenceFrame RefFrame;
@@ -68,13 +66,26 @@ namespace ClimateModel
     try
     {
     SetupCamera();
-    SetupSunlight();
     // MakeSurface();
+
+    AmbientLight AmbiLight = new AmbientLight();
+    // Make this a darker gray color to make it dimmer.
+
+
+    // AmbiLight.Color = System.Windows.Media.Colors.Gray; // AliceBlue
+
+    Color AmbiColor = new Color();
+    AmbiColor.R = 0x07; // Red
+    AmbiColor.G = 0x07; // Green
+    AmbiColor.B = 0x07; // Blue
+
+    AmbiLight.Color = AmbiColor;
+
+    Main3DGroup.Children.Add( AmbiLight );
 
     RefFrame.MakeGeometryModels( Main3DGroup );
 
     MainModelVisual3D.Content = Main3DGroup;
-
     }
     catch( Exception Except )
       {
@@ -335,7 +346,7 @@ namespace ClimateModel
 
 
 
-
+/*
   private void MakeSurface()
     {
     try
@@ -403,10 +414,10 @@ namespace ClimateModel
       return;
       }
     }
+*/
 
 
-
-
+/*
   private ImageBrush SetTextureImageBrush()
     {
     // Imaging Overview:
@@ -436,33 +447,11 @@ namespace ClimateModel
     ImgBrush.ImageSource = BMapImage;
     return ImgBrush;
     }
+*/
 
-
-
-
-  private void SetupSunlight()
-    {
-    // Positive Z values go toward the viewer.
-
-
-    // SunLight.Position = new Point3D( 0, 0, 20 );
-    SunLight.Color = System.Windows.Media.Brushes.White.Color;
-    // SunLight.Range = 15.0;
-    // SunLight.ConstantAttenuation = 3.0;
-    // SunLight.LinearAttenuation = 3.0;
-    // SunLight.QuadraticAttenuation = 2.0;
-
-    Main3DGroup.Children.Add( SunLight );
-    }
 
 
 
 
   }
 }
-
-
-
-
-
-
