@@ -48,5 +48,23 @@ namespace ClimateModel
 
 
 
+
+  internal static double RightAscensionToRadians( double Hours, double Minutes, double Seconds )
+    {
+    // Hours, minutes and seconds, with 24 hours being
+    // 360 degrees.
+
+    double TotalHours = Hours + (Minutes / 60.0d) + (Seconds / (60.0d * 60.0d));
+    double Degrees = TotalHours * (360.0d / 24.0d);
+    // If TotalHours was 24 then it would be
+    // 24 * (360 / 24) = 360
+    // If TotalHours was 12 then it would be
+    // 12 * (360 / 24) = 180
+
+    return DegreesToRadians( Degrees );
+    }
+
+
+
   }
 }
