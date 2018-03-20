@@ -75,9 +75,9 @@ namespace ClimateModel
     // AmbiLight.Color = System.Windows.Media.Colors.Gray; // AliceBlue
 
     Color AmbiColor = new Color();
-    AmbiColor.R = 0x07; // Red
-    AmbiColor.G = 0x07; // Green
-    AmbiColor.B = 0x07; // Blue
+    AmbiColor.R = 0x7F; // Red
+    AmbiColor.G = 0x7F; // Green
+    AmbiColor.B = 0x7F; // Blue
 
     AmbiLight.Color = AmbiColor;
 
@@ -106,12 +106,14 @@ namespace ClimateModel
   private void SetupCamera()
     {
     // Positive Z values go toward the viewer.
-    PCamera.Position = new Point3D( 0, 0, 15 );
-    PCamera.LookDirection = new Vector3D( 0, 0, -1 );
-    PCamera.UpDirection = new Vector3D( 0, 1, 0 );
+    PCamera.Position = new Point3D( 0, -15, 0 );
+    PCamera.LookDirection = new Vector3D( 0, 1, 0 );
+    PCamera.UpDirection = new Vector3D( 0, 0, 1 );
     PCamera.FieldOfView = 60;
     // Clipping planes:
-    PCamera.FarPlaneDistance = 10000;
+    // Too much of a range for clipping will cause
+    // problems with the Depth buffer.
+    PCamera.FarPlaneDistance = 1000000000;
     PCamera.NearPlaneDistance = 0.5;
     }
 
