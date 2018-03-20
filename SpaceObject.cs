@@ -23,10 +23,14 @@ namespace ClimateModel
   internal double X;
   internal double Y;
   internal double Z;
+  internal double XPrev; // The previous position.
+  internal double YPrev;
+  internal double ZPrev;
+  internal double VelocityX;
+  internal double VelocityY;
+  internal double VelocityZ;
+
   // internal double Mass;
-  // internal double VelocityX;
-  // internal double VelocityY;
-  // internal double VelocityZ;
 
 
 
