@@ -24,7 +24,7 @@ namespace ClimateModel
   private PerspectiveCamera PCamera = new PerspectiveCamera();
   private Model3DGroup Main3DGroup = new Model3DGroup();
   private ModelVisual3D MainModelVisual3D = new ModelVisual3D();
-  private ReferenceFrame RefFrame;
+  internal ReferenceFrame RefFrame;
 
 
 
@@ -41,9 +41,9 @@ namespace ClimateModel
     {
     MForm = UseForm;
 
-    RefFrame = new ReferenceFrame( MForm );
-    SetupScene();
-
+    RefFrame = new ReferenceFrame( MForm, Main3DGroup );
+    SetupCamera();
+    MainModelVisual3D.Content = Main3DGroup;
     }
     catch( Exception Except )
       {
@@ -57,41 +57,6 @@ namespace ClimateModel
   internal PerspectiveCamera GetCamera()
     {
     return PCamera;
-    }
-
-
-
-  private void SetupScene()
-    {
-    try
-    {
-    SetupCamera();
-    // MakeSurface();
-
-    AmbientLight AmbiLight = new AmbientLight();
-    // Make this a darker gray color to make it dimmer.
-
-
-    // AmbiLight.Color = System.Windows.Media.Colors.Gray; // AliceBlue
-
-    Color AmbiColor = new Color();
-    AmbiColor.R = 0x7F; // Red
-    AmbiColor.G = 0x7F; // Green
-    AmbiColor.B = 0x7F; // Blue
-
-    AmbiLight.Color = AmbiColor;
-
-    Main3DGroup.Children.Add( AmbiLight );
-
-    RefFrame.MakeGeometryModels( Main3DGroup );
-
-    MainModelVisual3D.Content = Main3DGroup;
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Exception in ThreeDScene.SetupScene(): " + Except.Message );
-      return;
-      }
     }
 
 
@@ -452,7 +417,10 @@ namespace ClimateModel
 */
 
 
-
+  internal void DoTimeStep()
+    {
+    RefFrame.DoTimeStep();
+    }
 
 
   }
