@@ -71,19 +71,24 @@ namespace ClimateModel
     closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
     TopPanel = new System.Windows.Forms.Panel();
     ThreeDPanel = new System.Windows.Forms.Panel();
-    MainElementHost = new System.Windows.Forms.Integration.ElementHost();
     textBox1 = new System.Windows.Forms.TextBox();
+
+    MainElementHost = new System.Windows.Forms.Integration.ElementHost();
     ViewPort = new Viewport3D();
 
     InitializeGuiComponents();
 
-    // This sets up the scene.
     Scene = new ThreeDScene( MForm );
+    MainElementHost.Child = ViewPort;
+
+    ViewPort.Children.Clear();
+    ViewPort.Children.Add( Scene.GetMainModelVisual3D() );
 
     ViewPort.Camera = Scene.GetCamera();
-    ViewPort.Children.Add( Scene.GetMainModelVisual3D() );
-    MainElementHost.Child = ViewPort;
+    Scene.RefFrame.MakeNewGeometryModels();
     }
+
+
 
 
 
@@ -217,6 +222,14 @@ namespace ClimateModel
 
     if( e.Control )
       {
+      if( e.KeyCode == Keys.T )
+        {
+        // MForm.ShowStatus( " " );
+        // MForm.ShowStatus( "T for time step." );
+        Scene.DoTimeStep();
+        return;
+        }
+
       if( e.KeyCode == Keys.Left )
         {
         Scene.RotateLeftRight( -Angle );
@@ -308,6 +321,7 @@ namespace ClimateModel
       {
       Scene.MoveUpDown( -Angle );
       }
+
     }
     catch( Exception Except )
       {
