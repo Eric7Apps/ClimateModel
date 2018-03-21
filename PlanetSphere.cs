@@ -23,10 +23,10 @@ namespace ClimateModel
   private ThreeDSphere GeometrySphere;
   internal string TextureFileName = "";
   internal double Radius = 1;
-  internal double LongitudeShiftHours = 0; // Time change.
   private MeshGeometry3D Surface;
   private GeometryModel3D GeoMod;
   private double DistanceScale = 0.03;
+  internal double LongitudeHours = 0; // Time change.
 
 
   /*
@@ -59,9 +59,13 @@ namespace ClimateModel
     }
 
 
+  internal override GeometryModel3D GetGeometryModel()
+    {
+    return GeoMod;
+    }
 
 
-  internal override GeometryModel3D MakeGeometryModel()
+  internal override void MakeNewGeometryModel()
     {
     try
     {
@@ -69,49 +73,20 @@ namespace ClimateModel
     // SolidMat.Brush = Brushes.Blue;
     SolidMat.Brush = SetTextureImageBrush();
 
-    MakeNewSurface();
-
-    if( Surface == null )
-      {
-      MForm.ShowStatus( "Surface was null in PlanetSphere.MakeGeometryModel()." );
-      return null;
-      }
-
-    GeoMod.Geometry = Surface;
-    GeoMod.Material = SolidMat;
-    return GeoMod;
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeGeometryModel(): " + Except.Message );
-      return null;
-      }
-    }
-
-
-
-// Do I make a new surface when ever I want to change it?
-
-  internal void MakeNewSurface()
-    {
-    try
-    {
     Surface = GeometrySphere.MakeSphericalModel( Radius,
                              X,
                              Y,
                              Z,
-                             LongitudeShiftHours );
+                             LongitudeHours );
 
-    if( Surface == null )
-      {
-      MForm.ShowStatus( "Surface was null in PlanetSphere.MakeNewSurface()." );
-      }
+    // if( Surface == null )
 
     GeoMod.Geometry = Surface;
+    GeoMod.Material = SolidMat;
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeNewSurface(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeNewGeometryModel(): " + Except.Message );
       }
     }
 
