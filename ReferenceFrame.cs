@@ -52,6 +52,8 @@ namespace ClimateModel
   class ReferenceFrame
   {
   private MainForm MForm;
+  private Model3DGroup Main3DGroup;
+
   private SpaceObject[] SpaceObjectArray;
   private int SpaceObjectArrayLast = 0;
   private PlanetSphere Sun;
@@ -83,31 +85,9 @@ namespace ClimateModel
   private double MoonDecl = NumbersEC.DegreesMinutesToRadians( 9, 39, 3 );
   private double MoonRightAPrev = NumbersEC.RightAscensionToRadians( 1, 43, 55 );
   private double MoonDeclPrev = NumbersEC.DegreesMinutesToRadians( 5, 30, 33 );
-  //                                                                     Mercury
-  // private double MercuryRightA = NumbersEC.RightAscensionToRadians( 0, 55, 20 );
-  // private double MercuryDecl = NumbersEC.DegreesMinutesToRadians( 9, 12, 43 );
-  // private double MercuryRightAPrev = NumbersEC.RightAscensionToRadians( 0, 53, 3 );
-  // private double MercuryDeclPrev = NumbersEC.DegreesMinutesToRadians( 8, 41, 7 );
   //                                                                     Venus
   private double VenusRightA = NumbersEC.RightAscensionToRadians( 1, 3, 20 );
   private double VenusDecl = NumbersEC.DegreesMinutesToRadians( 5, 46, 38 );
-  private double VenusRightAPrev = NumbersEC.RightAscensionToRadians( 0, 59, 0 );
-  private double VenusDeclPrev = NumbersEC.DegreesMinutesToRadians( 5, 17, 47 );
-  //                                                                     Mars
-  // private double MarsRightA = NumbersEC.RightAscensionToRadians( 18, 6, 27 );
-  // private double MarsDecl = NumbersEC.DegreesMinutesToRadians( -23, 30, 36 );
-  // private double MarsRightAPrev = NumbersEC.RightAscensionToRadians( 18, 4, 5 );
-  // private double MarsDeclPrev = NumbersEC.DegreesMinutesToRadians( -23, 29, 41 );
-  //                                                                       Jupiter
-  // private double JupiterRightA = NumbersEC.RightAscensionToRadians( 15, 22, 44 );
-  // private double JupiterDecl = NumbersEC.DegreesMinutesToRadians( -17, 16, 7 );
-  // private double JupiterRightAPrev = NumbersEC.RightAscensionToRadians( 15, 22, 51 );
-  // private double JupiterDeclPrev = NumbersEC.DegreesMinutesToRadians( -17, 16, 44 );
-  //                                                                        Saturn
-  // private double SaturnRightA = NumbersEC.RightAscensionToRadians( 18, 35, 38 );
-  // private double SaturnDecl = NumbersEC.DegreesMinutesToRadians( -22, 18, 10 );
-  // private double SaturnRightAPrev = NumbersEC.RightAscensionToRadians( 18, 35, 27 );
-  // private double SaturnDeclPrev = NumbersEC.DegreesMinutesToRadians( -22, 18, 20 );
 
   // Change the scale to help with testing and
   // visualizing it.
@@ -120,9 +100,12 @@ namespace ClimateModel
     }
 
 
-  internal ReferenceFrame( MainForm UseForm )
+  internal ReferenceFrame( MainForm UseForm,
+                           Model3DGroup Use3DGroup )
     {
     MForm = UseForm;
+
+    Main3DGroup = Use3DGroup;
 
     SpaceObjectArray = new SpaceObject[2];
     AddInitialSpaceObjects();
@@ -136,6 +119,7 @@ namespace ClimateModel
 
     MForm.ShowStatus( ToShow );
     }
+
 
 
   private void AddInitialSpaceObjects()
@@ -169,21 +153,55 @@ namespace ClimateModel
 
 
 
-  internal void MakeGeometryModels( Model3DGroup Main3DGroup )
+  internal void MakeNewGeometryModels()
     {
+    Main3DGroup.Children.Clear();
+
     for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
       {
-      GeometryModel3D GeoMod = SpaceObjectArray[Count].MakeGeometryModel();
+      SpaceObjectArray[Count].MakeNewGeometryModel();
+      GeometryModel3D GeoMod = SpaceObjectArray[Count].GetGeometryModel();
       if( GeoMod == null )
         continue;
 
       Main3DGroup.Children.Add( GeoMod );
       }
 
-    // The Light is a Model3D.
+    // Lights are Model3D objects.
     // System.Windows.Media.Media3D.Model3D
     //   System.Windows.Media.Media3D.Light
 
+    SetupAmbientLight( 0x3F, 0x3F, 0x3F );
+    SetupPointLight();
+    }
+
+
+
+  internal void ResetGeometryModels()
+    {
+    Main3DGroup.Children.Clear();
+
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      GeometryModel3D GeoMod = SpaceObjectArray[Count].GetGeometryModel();
+      if( GeoMod == null )
+        continue;
+
+      Main3DGroup.Children.Add( GeoMod );
+      }
+
+    // Lights are Model3D objects.
+    // System.Windows.Media.Media3D.Model3D
+    //   System.Windows.Media.Media3D.Light
+
+    SetupAmbientLight( 0x3F, 0x3F, 0x3F );
+    SetupPointLight();
+    }
+
+
+
+  private void SetupPointLight()
+    {
     PLight1 = new PointLight();
     PLight1.Color = System.Windows.Media.Colors.White;
 
@@ -199,6 +217,33 @@ namespace ClimateModel
 
     Main3DGroup.Children.Add( PLight1 );
     }
+
+
+
+  private void SetupAmbientLight( byte Red,
+                                  byte Green,
+                                  byte Blue )
+    {
+    try
+    {
+    AmbientLight AmbiLight = new AmbientLight();
+    // AmbiLight.Color = System.Windows.Media.Colors.Gray; // AliceBlue
+
+    Color AmbiColor = new Color();
+    AmbiColor.R = Red;
+    AmbiColor.G = Green;
+    AmbiColor.B = Blue;
+
+    AmbiLight.Color = AmbiColor;
+
+    Main3DGroup.Children.Add( AmbiLight );
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in ThreeDScene.SetupAmbientLight(): " + Except.Message );
+      }
+    }
+
 
 
 
@@ -257,14 +302,14 @@ namespace ClimateModel
 
     Sun.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\sun.jpg";
 
-    Sun.XPrev = PrevDistance * (Math.Cos( SunDeclPrev ) * Math.Cos( SunRightAPrev ));
-    Sun.YPrev = PrevDistance * (Math.Cos( SunDeclPrev ) * Math.Sin( SunRightAPrev ));
-    Sun.ZPrev = PrevDistance * Math.Sin( SunDeclPrev );
+    double XPrev = PrevDistance * (Math.Cos( SunDeclPrev ) * Math.Cos( SunRightAPrev ));
+    double YPrev = PrevDistance * (Math.Cos( SunDeclPrev ) * Math.Sin( SunRightAPrev ));
+    double ZPrev = PrevDistance * Math.Sin( SunDeclPrev );
 
     // Per one unit of time.
-    Sun.VelocityX = Sun.X - Sun.XPrev;
-    Sun.VelocityY = Sun.Y - Sun.YPrev;
-    Sun.VelocityZ = Sun.Z - Sun.ZPrev;
+    Sun.VelocityX = Sun.X - XPrev;
+    Sun.VelocityY = Sun.Y - YPrev;
+    Sun.VelocityZ = Sun.Z - ZPrev;
 
     AddSpaceObject( Sun );
 
@@ -285,8 +330,17 @@ namespace ClimateModel
     // Radius: About 6,371.0 kilometers.
     Earth.Radius = 6.371;
 
+
     // Shift the time of day:
-    Earth.LongitudeShiftHours = 0;
+    // If I make this 3 then the Earth rotates to
+    // the east by 3 hours.  (The sun moves to the
+    // west three hours toward sunset.)
+    // On March 20th, at the Spring Equinox,
+    // the sun is straight up above Greenwich
+    // England at longitude zero.  (When the shift
+    // hours is zero.)
+
+    Earth.LongitudeHours = 0;
 
     Earth.X = 0;
     Earth.Y = 0;
@@ -608,6 +662,18 @@ namespace ClimateModel
     AddSpaceObject( Saturn );
     }
     */
+
+
+
+  internal void DoTimeStep()
+    {
+    // MForm.ShowStatus( "DoTimeStep() in RefFrame." );
+
+    Earth.LongitudeHours = Earth.LongitudeHours + 0.5;
+    Earth.MakeNewGeometryModel();
+    ResetGeometryModels();
+    // MakeNewGeometryModels();
+    }
 
 
 
