@@ -23,9 +23,6 @@ namespace ClimateModel
   internal double X;
   internal double Y;
   internal double Z;
-  internal double XPrev; // The previous position.
-  internal double YPrev;
-  internal double ZPrev;
   internal double VelocityX;
   internal double VelocityY;
   internal double VelocityZ;
@@ -34,7 +31,10 @@ namespace ClimateModel
 
 
 
-  abstract internal GeometryModel3D MakeGeometryModel();
+  abstract internal void MakeNewGeometryModel();
+
+  abstract internal GeometryModel3D GetGeometryModel();
+
 
 
   }
