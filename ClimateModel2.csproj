@@ -71,7 +71,6 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-
   <ItemGroup>
     <Compile Include="MenuEvents.cs" />
     <Compile Include="Tetrahedron.cs" />
-    <Compile Include="ThreeDSphere.cs" />
     <Compile Include="NumbersEC.cs" />
     <Compile Include="QuaternionEC.cs" />
     <Compile Include="EarthGeoid.cs" />
