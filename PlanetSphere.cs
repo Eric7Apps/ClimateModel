@@ -140,7 +140,7 @@ namespace ClimateModel
 
 
 
-  internal void SetLatLonPositionXYZ( 
+  internal void SetLatLonPositionXYZ(
                       ref LatLongPosition Result,
                       double CosLatRadians,
                       double SinLatRadians )
@@ -216,15 +216,15 @@ namespace ClimateModel
 
 
 
-  internal void MakeSphericalModel()
+  private void MakeSphericalModel()
     {
     try
     {
     Surface = new MeshGeometry3D();
 
     LastVertexIndex = 0;
-    VertexRowsLast = 40 - 1;
-    int VertexRowsMiddle = 19;
+    VertexRowsLast = 20 - 1;
+    int VertexRowsMiddle = 9;
 
     VertexRows = new VertexRow[VertexRowsLast];
 
@@ -269,12 +269,12 @@ namespace ClimateModel
 
 
     double RowLatitude = 90;
-    double RowLatDelta = 5;
+    double RowLatDelta = 10;
 
-    int MaximumVertexes = 256;    
+    int MaximumVertexes = 256;
     int HowMany = 4;
     for( int Index = 1; Index <= VertexRowsMiddle; Index++ )
-      { 
+      {
       RowLatitude -= RowLatDelta;
       MakeOneVertexRow( Index, HowMany, RowLatitude );
       if( HowMany < MaximumVertexes )
@@ -286,7 +286,7 @@ namespace ClimateModel
     RowLatitude = -90;
     HowMany = 4;
     for( int Index = VertexRowsLast - 2; Index > VertexRowsMiddle; Index-- )
-      { 
+      {
       RowLatitude += RowLatDelta;
       MakeOneVertexRow( Index, HowMany, RowLatitude );
       if( HowMany < MaximumVertexes )
@@ -297,7 +297,7 @@ namespace ClimateModel
     MakePoleTriangles();
 
     for( int Index = 0; Index < VertexRowsLast - 2; Index++ )
-      { 
+      {
       if( VertexRows[Index].RowLast == VertexRows[Index + 1].RowLast )
         {
         MakeRowTriangles( Index, Index + 1 );
@@ -319,7 +319,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakeSphericalModel(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
       }
     }
 
@@ -377,7 +377,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakePoleTriangles(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakePoleTriangles(): " + Except.Message );
       }
     }
 
@@ -420,7 +420,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakeRowTriangles(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -483,7 +483,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakeDoubleRowTriangles(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -547,7 +547,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakeDoubleRowTriangles(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -560,7 +560,9 @@ namespace ClimateModel
       {
       VertexRows[Count].Row = null;
       }
-    } 
+
+    VertexRows = null;
+    }
 
 
 
@@ -615,7 +617,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in ThreeDSphere.MakeSphericalModel(): " + Except.Message );
+      MForm.ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
       return false;
       }
     }
