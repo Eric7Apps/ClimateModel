@@ -59,7 +59,7 @@ namespace ClimateModel
   private PlanetSphere Sun;
   // private PlanetSphere Mercury;
   private PlanetSphere Venus;
-  private PlanetSphere Earth;
+  private EarthGeoid Earth;
   private PlanetSphere Moon;
   // private PlanetSphere Mars;
   // private PlanetSphere Jupiter;
@@ -76,18 +76,18 @@ namespace ClimateModel
   // time unit you're using.
 
   //                                                               Sun
-  private double SunRightA = NumbersEC.RightAscensionToRadians( 23, 59, 15 );
-  private double SunDecl = NumbersEC.DegreesMinutesToRadians( 0, 4, 44 );
-  private double SunRightAPrev = NumbersEC.RightAscensionToRadians( 23, 55, 47 );
-  private double SunDeclPrev = NumbersEC.DegreesMinutesToRadians( 0, 27, 18 );
+  private double SunRightA = NumbersEC.RightAscensionToRadians( 0, 10, 29 );
+  private double SunDecl = NumbersEC.DegreesMinutesToRadians( 1, 8, 13 );
+  private double SunRightAPrev = NumbersEC.RightAscensionToRadians( 23, 59, 15 );
+  private double SunDeclPrev = NumbersEC.DegreesMinutesToRadians( 0, 4, 44 );
   //                                                                     Moon
-  private double MoonRightA = NumbersEC.RightAscensionToRadians( 2, 33, 15 );
-  private double MoonDecl = NumbersEC.DegreesMinutesToRadians( 9, 39, 3 );
-  private double MoonRightAPrev = NumbersEC.RightAscensionToRadians( 1, 43, 55 );
-  private double MoonDeclPrev = NumbersEC.DegreesMinutesToRadians( 5, 30, 33 );
+  private double MoonRightA = NumbersEC.RightAscensionToRadians( 5, 25, 29 );
+  private double MoonDecl = NumbersEC.DegreesMinutesToRadians( 19, 9, 38 );
+  private double MoonRightAPrev = NumbersEC.RightAscensionToRadians( 3, 30, 54 );
+  private double MoonDeclPrev = NumbersEC.DegreesMinutesToRadians( 13, 49, 16 );
   //                                                                     Venus
-  private double VenusRightA = NumbersEC.RightAscensionToRadians( 1, 3, 20 );
-  private double VenusDecl = NumbersEC.DegreesMinutesToRadians( 5, 46, 38 );
+  private double VenusRightA = NumbersEC.RightAscensionToRadians( 1, 17, 22 );
+  private double VenusDecl = NumbersEC.DegreesMinutesToRadians( 7, 19, 10 );
 
   // Change the scale to help with testing and
   // visualizing it.
@@ -325,10 +325,10 @@ namespace ClimateModel
     // https://en.wikipedia.org/wiki/Earth
 
     // Make Earth an EarthGeoid, not a PlanetSphere.
-    Earth = new PlanetSphere( MForm, DrawDistanceScale );
+    Earth = new EarthGeoid( MForm, DrawDistanceScale );
 
     // Radius: About 6,371.0 kilometers.
-    Earth.Radius = 6.371;
+    // Earth.Radius = 6.371;
 
 
     // Shift the time of day:
@@ -340,7 +340,7 @@ namespace ClimateModel
     // England at longitude zero.  (When the shift
     // hours is zero.)
 
-    Earth.LongitudeHours = 0;
+    Earth.LongitudeHoursRadians = 0;
 
     Earth.X = 0;
     Earth.Y = 0;
@@ -669,7 +669,8 @@ namespace ClimateModel
     {
     // MForm.ShowStatus( "DoTimeStep() in RefFrame." );
 
-    Earth.LongitudeHours = Earth.LongitudeHours + 0.5;
+    double AddHours = NumbersEC.DegreesToRadians( 0.5 * (360.0d / 24.0d) );
+    Earth.LongitudeHoursRadians = Earth.LongitudeHoursRadians + AddHours;
     Earth.MakeNewGeometryModel();
     ResetGeometryModels();
     // MakeNewGeometryModels();
