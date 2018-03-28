@@ -242,12 +242,12 @@ namespace ClimateModel
 
       if( e.KeyCode == Keys.PageUp )
         {
-        Scene.MoveForwardBack( 100.0 );
+        Scene.MoveForwardBack( 1000.0 );
         }
 
       if( e.KeyCode == Keys.PageDown )
         {
-        Scene.MoveForwardBack( -100.0 );
+        Scene.MoveForwardBack( -1000.0 );
         }
 
       return;
