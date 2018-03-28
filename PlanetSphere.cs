@@ -5,9 +5,7 @@
 
 
 using System;
-// using System.Collections.Generic;
 using System.Text;
-// using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Media;
@@ -25,13 +23,9 @@ namespace ClimateModel
   internal double Radius = 1;
   private MeshGeometry3D Surface;
   private GeometryModel3D GeoMod;
-  private double DistanceScale = 0.03;
   private VertexRow[] VertexRows;
   private int VertexRowsLast = 0;
   private int LastVertexIndex = 0;
-  // private double TranslateX = 1;
-  // private double TranslateY = 1;
-  // private double TranslateZ = 1;
   internal double LongitudeHoursRadians = 0; // Time change.
 
 
@@ -44,6 +38,7 @@ namespace ClimateModel
     public double X;
     public double Y;
     public double Z;
+    public QuaternionEC.Vector3 SurfaceNormal;
     public double TextureX;
     public double TextureY;
     // public double Radius;
@@ -60,22 +55,15 @@ namespace ClimateModel
 
 
 
-
-//       Array.Resize( ref TriArray, TriArray.Length + (4 * 1024) );
-
-
-
   private PlanetSphere()
     {
     }
 
 
 
-  internal PlanetSphere( MainForm UseForm,
-                    double UseDistanceScale )
+  internal PlanetSphere( MainForm UseForm )
     {
     MForm = UseForm;
-    DistanceScale = UseDistanceScale;
 
     GeoMod = new GeometryModel3D();
     }
@@ -157,9 +145,14 @@ namespace ClimateModel
     Result.Y = Radius * (CosLatRadians * SinLonRadians );
     Result.Z = Radius * SinLatRadians;
 
-    Result.X += X * DistanceScale;
-    Result.Y += Y * DistanceScale;
-    Result.Z += Z * DistanceScale;
+    Result.SurfaceNormal.X = Result.X;
+    Result.SurfaceNormal.Y = Result.Y;
+    Result.SurfaceNormal.Z = Result.Z;
+    QuaternionEC.NormalizeVector3( ref Result.SurfaceNormal, Result.SurfaceNormal );
+
+    Result.X += X;
+    Result.Y += Y;
+    Result.Z += Z;
 
     Result.TextureX = Result.Longitude + 180.0;
     Result.TextureX = Result.TextureX * ( 1.0d / 360.0d);
@@ -178,7 +171,11 @@ namespace ClimateModel
     // Surface.Positions.Add() adds it to the end.
     // Surface.Positions.Clear(); Removes all values.
 
-    Point3D VertexP = new Point3D( Pos.X, Pos.Y, Pos.Z );
+    // Use a scale for drawing?
+    double ScaledX = Pos.X; // * Scale;
+    double ScaledY = Pos.Y;
+    double ScaledZ = Pos.Z;
+    Point3D VertexP = new Point3D( ScaledX, ScaledY, ScaledZ );
     Surface.Positions.Add( VertexP );
 
     // Texture coordinates are "scaled by their
@@ -199,7 +196,7 @@ namespace ClimateModel
     Point TexturePoint = new Point( Pos.TextureX, Pos.TextureY );
     Surface.TextureCoordinates.Add( TexturePoint );
 
-    Vector3D SurfaceNormal = new Vector3D( Pos.X, Pos.Y, Pos.Z );
+    Vector3D SurfaceNormal = new Vector3D( Pos.SurfaceNormal.X, Pos.SurfaceNormal.Y, Pos.SurfaceNormal.Z );
     Surface.Normals.Add( SurfaceNormal );
     }
 
