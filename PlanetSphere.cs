@@ -150,9 +150,9 @@ namespace ClimateModel
     Result.SurfaceNormal.Z = Result.Z;
     QuaternionEC.NormalizeVector3( ref Result.SurfaceNormal, Result.SurfaceNormal );
 
-    Result.X += X;
-    Result.Y += Y;
-    Result.Z += Z;
+    Result.X += Position.X;
+    Result.Y += Position.Y;
+    Result.Z += Position.Z;
 
     Result.TextureX = Result.Longitude + 180.0;
     Result.TextureX = Result.TextureX * ( 1.0d / 360.0d);
