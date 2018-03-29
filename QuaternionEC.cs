@@ -94,6 +94,15 @@ namespace ClimateModel
 
 
 
+  internal static void MultiplyVector3WithScalar( ref Vector3 Result, double Scalar )
+    {
+    Result.X = Result.X * Scalar;
+    Result.Y = Result.Y * Scalar;
+    Result.Z = Result.Z * Scalar;
+    }
+
+
+
   internal static void NormalizeVector3( ref Vector3 Result, Vector3 In )
     {
     double Length = (In.X * In.X) +
@@ -242,7 +251,7 @@ namespace ClimateModel
 
     Copy( ref TestX, ref Result );
 
-     // From the definition of "inverse", it should 
+     // From the definition of "inverse", it should
     // equal 1.
     Multiply( ref TestResult, ref TestX, ref TestQ );
     if( !IsAlmostEqual(  ref Test1, ref TestResult, SmallNumber ))
@@ -274,7 +283,7 @@ namespace ClimateModel
 
   // https://en.wikipedia.org/wiki/Cross_product
 
-  internal static void CrossProduct( ref QuaternionRec Result, 
+  internal static void CrossProduct( ref QuaternionRec Result,
                                      ref QuaternionRec Left,
                                      ref QuaternionRec Right )
     {
@@ -542,7 +551,7 @@ namespace ClimateModel
 
 
 
-  internal static void SetAsRotation( ref QuaternionRec Result, 
+  internal static void SetAsRotation( ref QuaternionRec Result,
                                       ref QuaternionRec Axis,
                                       double Angle )
     {
@@ -627,5 +636,3 @@ namespace ClimateModel
 
   }
 }
-
-
