@@ -68,6 +68,32 @@ namespace ClimateModel
 
 
 
+  internal void SetCameraTo( double X,
+                             double Y,
+                             double Z,
+                             double LookX,
+                             double LookY,
+                             double LookZ,
+                             double UpX,
+                             double UpY,
+                             double UpZ )
+    {
+    PCamera.Position = new Point3D( X, Y, Z );
+    PCamera.LookDirection = new Vector3D( LookX, LookY, LookZ );
+    PCamera.UpDirection = new Vector3D( UpX, UpY, UpZ );
+    }
+
+
+
+  internal void SetCameraToOriginal()
+    {
+    PCamera.Position = new Point3D( 0, -15, 0 );
+    PCamera.LookDirection = new Vector3D( 0, 1, 0 );
+    PCamera.UpDirection = new Vector3D( 0, 0, 1 );
+    }
+
+
+
   private void SetupCamera()
     {
     // Positive Z values go toward the viewer.
