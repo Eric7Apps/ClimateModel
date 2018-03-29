@@ -227,8 +227,27 @@ namespace ClimateModel
         // MForm.ShowStatus( " " );
         // MForm.ShowStatus( "T for time step." );
         Scene.DoTimeStep();
+/*
+  private void SetCameraTo( double X,
+                            double Y,
+                            double Z,
+                            double LookX,
+                            double LookY,
+                            double LookZ,
+                            double UpX,
+                            double UpY,
+                            double UpZ )
+                            */
         return;
         }
+
+
+      if( e.KeyCode == Keys.E )
+        {
+        Scene.SetCameraToOriginal();
+        return;
+        }
+
 
       if( e.KeyCode == Keys.Left )
         {
