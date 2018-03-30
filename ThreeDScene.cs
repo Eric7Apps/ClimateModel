@@ -104,7 +104,11 @@ namespace ClimateModel
     // Clipping planes:
     // Too much of a range for clipping will cause
     // problems with the Depth buffer.
-    PCamera.FarPlaneDistance = 1000000000;
+    // Saturn is at about 1,498,032 thousand
+    // kilometers from Earth.  And 1,505,795 from
+    // the sun.  Twice the radius of Saturn's
+    // orbit: 1,600,000 * 2.
+    PCamera.FarPlaneDistance = 1600000 * 2;
     PCamera.NearPlaneDistance = 0.5;
     }
 
@@ -171,8 +175,8 @@ namespace ClimateModel
     Vector3D LookDirection = PCamera.LookDirection;
     Vector3D UpDirection = PCamera.UpDirection;
 
-    QuaternionEC.Vector3 Up = new QuaternionEC.Vector3();
-    QuaternionEC.Vector3 ResultPoint = new QuaternionEC.Vector3();
+    Vector3.Vector Up = new Vector3.Vector();
+    Vector3.Vector ResultPoint = new Vector3.Vector();
 
     QuaternionEC.QuaternionRec Axis = new QuaternionEC.QuaternionRec();
     QuaternionEC.QuaternionRec MiddlePoint = new QuaternionEC.QuaternionRec();
