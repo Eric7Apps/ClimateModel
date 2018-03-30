@@ -20,8 +20,8 @@ namespace ClimateModel
 {
   abstract class SpaceObject
   {
-  internal QuaternionEC.Vector3 Position;
-  internal QuaternionEC.Vector3 Velocity;
+  internal Vector3.Vector Position;
+  internal Vector3.Vector Velocity;
 
 
   // internal double Mass;
