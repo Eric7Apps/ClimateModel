@@ -36,12 +36,6 @@ namespace ClimateModel
     public double W;
     }
 
-  public struct Vector3
-    {
-    public double X;
-    public double Y;
-    public double Z;
-    }
 
 
   internal static void SetOne( ref QuaternionRec Result )
@@ -90,35 +84,6 @@ namespace ClimateModel
     Result.Y += In.Y;
     Result.Z += In.Z;
     Result.W += In.W;
-    }
-
-
-
-  internal static void MultiplyVector3WithScalar( ref Vector3 Result, double Scalar )
-    {
-    Result.X = Result.X * Scalar;
-    Result.Y = Result.Y * Scalar;
-    Result.Z = Result.Z * Scalar;
-    }
-
-
-
-  internal static void NormalizeVector3( ref Vector3 Result, Vector3 In )
-    {
-    double Length = (In.X * In.X) +
-                    (In.Y * In.Y) +
-                    (In.Z * In.Z);
-
-    double SmallNumber = 0.00000000000000000001d;
-    if( Length < SmallNumber )
-      throw( new Exception( "Length was too short for NormalizeVector3() in QuaternionEC." ));
-
-    Length = Math.Sqrt( Length );
-    double Inverse = 1.0d / Length;
-
-    Result.X = In.X * Inverse;
-    Result.Y = In.Y * Inverse;
-    Result.Z = In.Z * Inverse;
     }
 
 
@@ -443,7 +408,7 @@ namespace ClimateModel
 
 
 
-  internal static void MultiplyWithLeftVector3( ref QuaternionRec Result, ref Vector3 L, ref QuaternionRec R )
+  internal static void MultiplyWithLeftVector3( ref QuaternionRec Result, ref Vector3.Vector L, ref QuaternionRec R )
     {
     //////////////////////////////////////
     // Make sure Result is not the same object
@@ -498,7 +463,7 @@ namespace ClimateModel
 
 
 
-  internal static void MultiplyWithResultVector3( ref Vector3 Result, ref QuaternionRec L, ref QuaternionRec R )
+  internal static void MultiplyWithResultVector3( ref Vector3.Vector Result, ref QuaternionRec L, ref QuaternionRec R )
     {
     //////////////////////////////////////
     // Make sure Result is not the same object
@@ -590,11 +555,12 @@ namespace ClimateModel
 
 
 
-  internal static void RotateVector3( ref Vector3 ResultPoint,
-                               ref QuaternionRec RotationQ,
-                               ref QuaternionRec InverseRotationQ,
-                               ref Vector3 StartPoint,
-                               ref QuaternionRec MiddlePoint )
+  internal static void RotateVector3(
+                     ref Vector3.Vector ResultPoint,
+                     ref QuaternionRec RotationQ,
+                     ref QuaternionRec InverseRotationQ,
+                     ref Vector3.Vector StartPoint,
+                     ref QuaternionRec MiddlePoint )
     {
     // This function might be called millions of
     // times in a loop, so InverseRotationQ is
