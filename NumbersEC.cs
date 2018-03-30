@@ -49,6 +49,14 @@ namespace ClimateModel
 
 
 
+  internal static double RadiansToDegrees( double Radians )
+    {
+    double RadConstant = 360.0d / (2.0d * 3.14159265358979323846d);
+    return Radians * RadConstant;
+    }
+
+
+
   internal static double RightAscensionToRadians( double Hours, double Minutes, double Seconds )
     {
     // Hours, minutes and seconds, with 24 hours being
