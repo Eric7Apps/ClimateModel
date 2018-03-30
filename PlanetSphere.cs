@@ -27,7 +27,7 @@ namespace ClimateModel
   private int VertexRowsLast = 0;
   private int LastVertexIndex = 0;
   internal double LongitudeHoursRadians = 0; // Time change.
-
+  internal static double ThreeDSizeScale = 0.000001;
 
 
   public struct LatLongPosition
@@ -38,7 +38,7 @@ namespace ClimateModel
     public double X;
     public double Y;
     public double Z;
-    public QuaternionEC.Vector3 SurfaceNormal;
+    public Vector3.Vector SurfaceNormal;
     public double TextureX;
     public double TextureY;
     // public double Radius;
@@ -148,7 +148,7 @@ namespace ClimateModel
     Result.SurfaceNormal.X = Result.X;
     Result.SurfaceNormal.Y = Result.Y;
     Result.SurfaceNormal.Z = Result.Z;
-    QuaternionEC.NormalizeVector3( ref Result.SurfaceNormal, Result.SurfaceNormal );
+    Vector3.Normalize( ref Result.SurfaceNormal, Result.SurfaceNormal );
 
     Result.X += Position.X;
     Result.Y += Position.Y;
@@ -171,10 +171,10 @@ namespace ClimateModel
     // Surface.Positions.Add() adds it to the end.
     // Surface.Positions.Clear(); Removes all values.
 
-    // Use a scale for drawing?
-    double ScaledX = Pos.X; // * Scale;
-    double ScaledY = Pos.Y;
-    double ScaledZ = Pos.Z;
+    // Use a scale for drawing.
+    double ScaledX = Pos.X * ThreeDSizeScale;
+    double ScaledY = Pos.Y * ThreeDSizeScale;
+    double ScaledZ = Pos.Z * ThreeDSizeScale;
     Point3D VertexP = new Point3D( ScaledX, ScaledY, ScaledZ );
     Surface.Positions.Add( VertexP );
 
