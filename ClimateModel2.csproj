@@ -69,6 +69,7 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Vector3.cs" />
     <Compile Include="MenuEvents.cs" />
     <Compile Include="Tetrahedron.cs" />
     <Compile Include="NumbersEC.cs" />
