@@ -87,8 +87,9 @@ namespace ClimateModel
 
   internal void SetCameraToOriginal()
     {
-    PCamera.Position = new Point3D( 0, -15, 0 );
-    PCamera.LookDirection = new Vector3D( 0, 1, 0 );
+    PCamera.Position = new Point3D( 0, 15, 0 );
+    PCamera.LookDirection = new Vector3D( 0, -1, 0 );
+    // Up is toward the North Pole.
     PCamera.UpDirection = new Vector3D( 0, 0, 1 );
     }
 
@@ -97,9 +98,6 @@ namespace ClimateModel
   private void SetupCamera()
     {
     // Positive Z values go toward the viewer.
-    PCamera.Position = new Point3D( 0, -15, 0 );
-    PCamera.LookDirection = new Vector3D( 0, 1, 0 );
-    PCamera.UpDirection = new Vector3D( 0, 0, 1 );
     PCamera.FieldOfView = 60;
     // Clipping planes:
     // Too much of a range for clipping will cause
@@ -110,6 +108,8 @@ namespace ClimateModel
     // orbit: 1,600,000 * 2.
     PCamera.FarPlaneDistance = 1600000 * 2;
     PCamera.NearPlaneDistance = 0.5;
+
+    SetCameraToOriginal();
     }
 
 
