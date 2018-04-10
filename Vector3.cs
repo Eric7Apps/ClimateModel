@@ -84,11 +84,6 @@ namespace ClimateModel
   internal static double Norm( ref Vector3.Vector In )
     {
     double NSquared = NormSquared( ref In );
-
-    double SmallNumber = 0.0000000000000001d;
-    if( NSquared < SmallNumber )
-      throw( new Exception( "Length was too short for Norm() in Vector3." ));
-
     return Math.Sqrt( NSquared );
     }
 
@@ -100,11 +95,13 @@ namespace ClimateModel
                     (In.Y * In.Y) +
                     (In.Z * In.Z);
 
-    double SmallNumber = 0.00000000000000000001d;
-    if( Length < SmallNumber )
-      throw( new Exception( "Length was too short for NormalizeVector3() in QuaternionEC." ));
-
     Length = Math.Sqrt( Length );
+
+    const double SmallNumber = 0.00000000000000000001d;
+    if( Length < SmallNumber )
+      throw( new Exception( "Length was too short for Vector3.Normalize()." ));
+
+
     double Inverse = 1.0d / Length;
 
     Result.X = In.X * Inverse;
@@ -123,18 +120,16 @@ namespace ClimateModel
 
 
 
-  /*
-  internal static double DotProduct( ref QuaternionRec Left, ref QuaternionRec Right )
+  // https://en.wikipedia.org/wiki/Dot_product
+  internal static double DotProduct( ref Vector3.Vector Left, ref Vector3.Vector Right )
     {
     double Dot = (Left.X * Right.X) +
                  (Left.Y * Right.Y) +
                  (Left.Z * Right.Z);
-// Is W zero?  Is it used?
-                // (Left.W * Right.W);
 
     return Dot;
     }
-    */
+
 
 
   }
