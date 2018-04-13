@@ -103,11 +103,6 @@ namespace ClimateModel
   internal static double Norm( ref QuaternionRec In )
     {
     double NSquared = NormSquared( ref In );
-
-    double SmallNumber = 0.0000000000000001d;
-    if( NSquared < SmallNumber )
-      throw( new Exception( "Length was too short for Norm() in QuaternionEC." ));
-
     return Math.Sqrt( NSquared );
     }
 
@@ -116,6 +111,9 @@ namespace ClimateModel
   internal static void Normalize( ref QuaternionRec Result, ref QuaternionRec In )
     {
     double Length = Norm( ref In );
+    if( Length < 0.000000000000000001d )
+      throw( new Exception( "Length is too small in QuaternionEC.Normalize()." ));
+
     double Inverse = 1.0d / Length;
 
     Result.X = In.X * Inverse;
@@ -192,13 +190,6 @@ namespace ClimateModel
     // The negative parts are to make it the
     // conjugate.  So the Result is the conjugate
     // divided by the norm squared.
-    // Since multiplication isn't commutative,
-    // neither is division.  I'm pretty sure
-    // that it's a theorem of Group Theory that
-    // there is only one multiplicative inverse.
-    // But here the value InverseNS is just a real
-    // number and it commutes with the quaternion.
-
     Result.X = -In.X * InverseNS;
     Result.Y = -In.Y * InverseNS;
     Result.Z = -In.Z * InverseNS;
@@ -230,19 +221,6 @@ namespace ClimateModel
 
     }
 
-
-  /*
-  internal static double DotProduct( ref QuaternionRec Left, ref QuaternionRec Right )
-    {
-    double Dot = (Left.X * Right.X) +
-                 (Left.Y * Right.Y) +
-                 (Left.Z * Right.Z);
-// Is W zero?  Is it used?
-                // (Left.W * Right.W);
-
-    return Dot;
-    }
-    */
 
 
 
@@ -524,6 +502,8 @@ namespace ClimateModel
     Axis.W = 0;
     Normalize( ref Axis, ref Axis );
 
+    // If Angle was Pi / 2 then this would be
+    // Pi / 4.
     double HalfAngle = Angle * 0.5d;
     double SineHalfAngle = Math.Sin( HalfAngle );
     double CosineHalfAngle = Math.Cos( HalfAngle );
