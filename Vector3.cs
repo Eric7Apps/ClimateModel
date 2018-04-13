@@ -127,8 +127,45 @@ namespace ClimateModel
                  (Left.Y * Right.Y) +
                  (Left.Z * Right.Z);
 
+    // This is commutative:
+    // double Dot = (Right.X * Left.X) +
+    //              (Right.Y * Left.Y) +
+    //              (Right.Z * Left.Z);
+
     return Dot;
     }
+
+
+
+  internal static void MakePerpendicular( ref Vector3.Vector Result, ref Vector3.Vector A, ref Vector3.Vector B )
+    {
+    // A and B are assumed to be already normalized.
+    // Make a vector that is perpendicular to A,
+    // pointing toward B.
+
+    Vector3.Vector CosineLengthVec = new Vector3.Vector();
+
+    double Dot = DotProduct( ref A, ref B );
+    Copy( ref CosineLengthVec, ref A );
+    MultiplyWithScalar( ref CosineLengthVec, Dot );
+
+    // CosineLengthVec now points in the same
+    // direction as A, but it's shorter.
+
+    // CosineLengthVec + Result = B
+    // Result = B - CosineLengthVec
+    Copy( ref Result, ref B );
+    Subtract( ref Result, ref CosineLengthVec );
+    Normalize( ref Result, Result );
+
+    // They should be orthogonal to each other.
+    double TestDot = DotProduct( ref A, ref Result );
+    // if( Math.Abs( TestDot ) > 0.0000000000001 )
+    if( Math.Abs( TestDot ) > 0.00001 )
+      throw( new Exception( "TestDot should be zero." ));
+
+    }
+
 
 
 
