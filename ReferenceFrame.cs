@@ -3,11 +3,10 @@
 // ericsourcecode.blogspot.com
 
 
+
 // This is a container for SpaceObjects, and also
 // it sets objects in a reference frame.
 
-// Vernal: "of, relating to, or occurring in the
-// spring."  "fresh or new like the spring"
 
 // The sun has about 99.8 percent of the mass
 // of the Solar System.  Most of the rest of the
@@ -18,6 +17,7 @@
 // (From above the north pole.)
 
 
+// https://en.wikipedia.org/wiki/Barycenter
 // https://en.wikipedia.org/wiki/International_Celestial_Reference_Frame
 // https://en.wikipedia.org/wiki/Equatorial_coordinate_system
 // https://en.wikipedia.org/wiki/Solar_System
@@ -47,6 +47,7 @@ namespace ClimateModel
   private Model3DGroup Main3DGroup;
   private SpaceObject[] SpaceObjectArray;
   private int SpaceObjectArrayLast = 0;
+  private double RadiusScale = 400.0;
   private PlanetSphere Sun;
   private PlanetSphere Mercury;
   private PlanetSphere Venus;
@@ -55,14 +56,16 @@ namespace ClimateModel
   private PlanetSphere Mars;
   private PlanetSphere Jupiter;
   private PlanetSphere Saturn;
+
+  // The values they start with:
   private double SunRightA;
   private double SunDecl;
   private double SunRightAPrev;
   private double SunDeclPrev;
   private double MoonRightA;
   private double MoonDecl;
-  private double MoonRightAPrev;
-  private double MoonDeclPrev;
+  // private double MoonRightAPrev;
+  // private double MoonDeclPrev;
   private double MercuryRightA;
   private double MercuryDecl;
   private double VenusRightA;
@@ -73,7 +76,6 @@ namespace ClimateModel
   private double JupiterDecl;
   private double SaturnRightA;
   private double SaturnDecl;
-
 
 
   private ReferenceFrame()
@@ -105,53 +107,55 @@ namespace ClimateModel
     // https://en.wikipedia.org/wiki/Right_ascension
 
     SunRightA =
-       NumbersEC.RightAscensionToRadians( 0, 32, 15 );
+       NumbersEC.RightAscensionToRadians( 1, 37, 46 );
     SunDecl =
-       NumbersEC.DegreesMinutesToRadians( 3, 28, 50 );
+       NumbersEC.DegreesMinutesToRadians( 10, 10, 11 );
     SunRightAPrev =
-       NumbersEC.RightAscensionToRadians( 0, 31, 58 );
+       NumbersEC.RightAscensionToRadians( 1, 30, 35 );
     SunDeclPrev =
-       NumbersEC.DegreesMinutesToRadians( 3, 27, 3 );
+       NumbersEC.DegreesMinutesToRadians( 9, 28, 39 );
 
     MoonRightA =
-       NumbersEC.RightAscensionToRadians( 11, 9, 57 );
-    MoonDecl =
-       NumbersEC.DegreesMinutesToRadians( 8, 15, 56 );
-    MoonRightAPrev =
-       NumbersEC.RightAscensionToRadians( 5, 25, 29 );
-    MoonDeclPrev =
-       NumbersEC.DegreesMinutesToRadians( 19, 9, 38 );
+       NumbersEC.RightAscensionToRadians( 2, 13, 11 );
+    MoonDecl =  // Shown as negative zero.
+       NumbersEC.DegreesMinutesToRadians( 8, 6, 11 );
+
+
+// 23, 45, 58
+// -5, 14, 23
+
+// 22, 58, 44
+// -9, 16, 42
+
+// 17, 55, 1
+// -19, 55, 27
+
+
 
     MercuryRightA =
-       NumbersEC.RightAscensionToRadians( 0, 46, 36 );
+       NumbersEC.RightAscensionToRadians( 0, 18, 17 );
     MercuryDecl =
-       NumbersEC.DegreesMinutesToRadians( 8, 33, 18 );
+       NumbersEC.DegreesMinutesToRadians( 1, 1, 40 );
 
     VenusRightA =
-       NumbersEC.RightAscensionToRadians( 1, 44, 30 );
+       NumbersEC.RightAscensionToRadians( 3, 9, 47 );
     VenusDecl =
-       NumbersEC.DegreesMinutesToRadians( 10, 11, 52 );
+       NumbersEC.DegreesMinutesToRadians( 17, 55, 22 );
 
-    ////////////////////////////////////////////////////
-    // Look how close the Mars and Saturn Right
-    // Ascension values are.
     MarsRightA =
-       NumbersEC.RightAscensionToRadians( 18, 28, 29 );
+       NumbersEC.RightAscensionToRadians( 19, 10, 26 );
     MarsDecl =
-       NumbersEC.DegreesMinutesToRadians( -23, 33, 46 );
+       NumbersEC.DegreesMinutesToRadians( -23, 14, 54 );
 
     SaturnRightA =
-       NumbersEC.RightAscensionToRadians( 18, 37, 8 );
+       NumbersEC.RightAscensionToRadians( 18, 38, 26 );
     SaturnDecl =
-       NumbersEC.DegreesMinutesToRadians( -22, 16, 44 );
-
-    /////////////////////////////
-
+       NumbersEC.DegreesMinutesToRadians( -22, 15, 18 );
 
     JupiterRightA =
-       NumbersEC.RightAscensionToRadians( 15, 20, 57 );
+       NumbersEC.RightAscensionToRadians( 15, 14, 47 );
     JupiterDecl =
-       NumbersEC.DegreesMinutesToRadians( -17, 8, 16 );
+       NumbersEC.DegreesMinutesToRadians( -16, 43, 9 );
 
     }
 
@@ -245,29 +249,30 @@ namespace ClimateModel
 
     double OuterDistance = 1.5;
 
-    double X = Sun.Position.X;
-    double Y = Sun.Position.Y;
-    double Z = Sun.Position.Z;
+    double X = Sun.Position.X * PlanetSphere.ThreeDSizeScale;
+    double Y = Sun.Position.Y * PlanetSphere.ThreeDSizeScale;
+    double Z = Sun.Position.Z * PlanetSphere.ThreeDSizeScale;
+    double RadiusScaled = Sun.Radius * PlanetSphere.ThreeDSizeScale;
 
     // This is a crude way of making the outside of
     // the sun look bright, and at the same time
     // approximate light coming from the sun.  Put
     // four lights around it and close to it.  Use
     // EmissiveMaterial instead?
-    SetupPointLight( X + (Sun.Radius * OuterDistance),
+    SetupPointLight( X + (RadiusScaled * OuterDistance),
                      Y,
                      Z );
 
-    SetupPointLight( X - (Sun.Radius * OuterDistance),
+    SetupPointLight( X - (RadiusScaled * OuterDistance),
                      Y,
                      Z );
 
     SetupPointLight( X,
-                     Y + (Sun.Radius * OuterDistance),
+                     Y + (RadiusScaled * OuterDistance),
                      Z );
 
     SetupPointLight( X,
-                     Y - (Sun.Radius * OuterDistance),
+                     Y - (RadiusScaled * OuterDistance),
                      Z );
 
     }
@@ -298,7 +303,7 @@ namespace ClimateModel
 
   private void SetupAmbientLight()
     {
-    byte RGB = 0x1F;
+    byte RGB = 0x0F;
     SetupAmbientLightColors( RGB, RGB, RGB );
     }
 
@@ -337,16 +342,24 @@ namespace ClimateModel
 
     Sun = new PlanetSphere( MForm );
 
-    // Radius: About 695,700 kilometers.
-    Sun.Radius = 695.7;
+    Sun.Radius = 695700 * ModelConstants.TenTo3;
 
     // Sun.Mass;
 
     double RightAscension = SunRightA;
     double Declination = SunDecl;
 
-    double Distance = 148993; // 149597.8;
-    double PrevDistance = 148993;
+    // One Astronomical Unit (AU) is the distance from
+    // the earth to the sun.
+    // One AU: 149,597,870.7 kilometers.
+
+
+    // Earth's orbit:
+    //                      b  m  t
+    // Aphelion:          152100000000
+    // Perihelion:        147095000000
+    double Distance = ModelConstants.DistanceToSun;
+    double PrevDistance = ModelConstants.PrevDistanceToSun;
 
     // Notice that if the Declination and the Right
     // Ascension are both zero, which is what they
@@ -381,6 +394,7 @@ namespace ClimateModel
     double YPrev = PrevDistance * (Math.Cos( SunDeclPrev ) * Math.Sin( SunRightAPrev ));
     double ZPrev = PrevDistance * Math.Sin( SunDeclPrev );
 
+    // See AddEarth().
     // Per one unit of time.  What ever time the
     // previous positions were taken at.
     Sun.Velocity.X = Sun.Position.X - XPrev;
@@ -395,19 +409,6 @@ namespace ClimateModel
   private void AddEarth()
     {
     // https://en.wikipedia.org/wiki/Earth
-
-    // https://en.wikipedia.org/wiki/Astronomical_unit
-    // Notice the "helio" part of the words here.
-    // Maximum: Aphelion
-    // Minimum: Perihelion
-    // Peri: near.
-    // Apo: away from.
-    // 'Perigee' and 'Apogee' are used for orbits
-    // around the Earth.
-
-    // Earth's orbit:
-    // Aphelion:   152,100,000 km
-    // Perihelion: 147,095,000 km
 
     // Earth is an EarthGeoid, not a PlanetSphere.
     Earth = new EarthGeoid( MForm );
@@ -425,27 +426,23 @@ namespace ClimateModel
     Earth.Position.Y = 0;
     Earth.Position.Z = 0;
 
-    // One Astronomical unit is the distance from
-    // the earth to the sun.
-    // One AU: 149,597,870.7 kilometers.
-
-    // Distance in kilometers.
-    double Circumference = 149597870.7d * 2.0d * Math.PI;
+    // Distance in Meters.
     // Earth orbit in days: 365.256
-    double VelocityPerDay = Circumference / 365.256d;
-    double VelocityPerHour = VelocityPerDay / 24d;
-    double VelocityPerSecond = VelocityPerHour / (60.0d * 60.0d);
+    const double VelocityPerDay = 
+       ModelConstants.EarthOrbitCircumference / 365.256d;
+    const double VelocityPerHour = 
+                        VelocityPerDay / 24d;
+    const double VelocityPerSecond = 
+              VelocityPerHour / (60.0d * 60.0d);
 
     ShowStatus( " " );
-    ShowStatus( "Earth Velocity kilometers per hour: " + VelocityPerHour.ToString( "N2" ));
-    ShowStatus( "Earth Velocity kilometers per second: " + VelocityPerSecond.ToString( "N2" ));
+    ShowStatus( "Earth Velocity meters per hour: " + VelocityPerHour.ToString( "N0" ));
+    ShowStatus( "Earth Velocity meters per second: " + VelocityPerSecond.ToString( "N0" ));
     ShowStatus( " " );
-    // Earth Velocity kilometers per hour: 107,225.15
-    // Earth Velocity kilometers per second: 29.78
 
     // Make it so the Earth is moving in the opposite
     // direction and the sun's velocity is zero in
-    // this coordinate system.
+    // this coordinate system.  (To start with.)
     Earth.Velocity.X = -Sun.Velocity.X;
     Earth.Velocity.Y = -Sun.Velocity.Y;
     Earth.Velocity.Z = -Sun.Velocity.Z;
@@ -454,38 +451,17 @@ namespace ClimateModel
     Sun.Velocity.Z = 0;
 
     // Make a better estimate of velocity.
-    QuaternionEC.NormalizeVector3( ref Earth.Velocity, Earth.Velocity );
-    QuaternionEC.MultiplyVector3WithScalar( ref Earth.Velocity, VelocityPerSecond );
+    Vector3.Normalize( ref Earth.Velocity, Earth.Velocity );
+    Vector3.MultiplyWithScalar( ref Earth.Velocity, VelocityPerSecond );
 
-    ShowStatus( "Earth Velocity kilometers per second:" );
-    ShowStatus( "Earth Velocity.X: " + Earth.Velocity.X.ToString( "N2" ));
-    ShowStatus( "Earth Velocity.Y: " + Earth.Velocity.Y.ToString( "N2" ));
-    ShowStatus( "Earth Velocity.Z: " + Earth.Velocity.Z.ToString( "N2" ));
+    ShowStatus( "Earth Velocity meters per second:" );
+    ShowStatus( "Earth Velocity.X: " + Earth.Velocity.X.ToString( "N0" ));
+    ShowStatus( "Earth Velocity.Y: " + Earth.Velocity.Y.ToString( "N0" ));
+    ShowStatus( "Earth Velocity.Z: " + Earth.Velocity.Z.ToString( "N0" ));
     ShowStatus( " " );
 
-    // The Earth is moving counterclockwise around
-    // the sun.  Looking down from above the north
-    // pole that means that after spring equinox
-    // the Earth is moving in the positive X
-    // direction, the negative Y direction, and the
-    // negative Z direction.  It's the opposite of
-    // the way the sun _appears_ to be moving.
-
-    // This position for the sun was not long after
-    // the spring equinox, on March 29th.
-    // Velocity.X should be zero at the spring
-    // equinox.  At the spring equinox, the earth
-    // is at the origin and the sun is straight
-    // down the X axis.
-    // March 29th position of sun:
-    // Sun.Position.X: 147,248
-    // Sun.Position.Y: 20,858
-    // Sun.Position.Z: 9,045
-
-    // Earth Velocity kilometers per second:
-    // Earth Velocity.X: 4.53
-    // Earth Velocity.Y: -27.09
-    // Earth Velocity.Z: -11.52
+    // Velocity.Z is at a maximum at the spring
+    // equinox.
 
     Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg";
     AddSpaceObject( Earth );
@@ -502,12 +478,12 @@ namespace ClimateModel
     Moon = new PlanetSphere( MForm );
 
     // Radius: About 1,737.1 kilometers.
-    Moon.Radius = 1.7371;
+    Moon.Radius = 1737100;
 
     double RightAscension = MoonRightA;
     double Declination = MoonDecl;
 
-    double Distance = 380; // 362.6;
+    double Distance = ModelConstants.DistanceToMoon;
 
     Moon.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Moon.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
@@ -529,43 +505,14 @@ namespace ClimateModel
     {
     try
     {
-    // ShowStatus( "Adding Mars:" );
-
     Mars = new PlanetSphere( MForm );
 
-    // Radius in thousands of kilometers.
-    // Times 1000 to make it visible.
-    Mars.Radius = 3.396 * 1000;
+    Mars.Radius = 3396000 * RadiusScale;
 
     double RightAscension = MarsRightA;
     double Declination = MarsDecl;
 
-
-    /*
-    double SunMarsAngle = Math.Abs( SunRightA - MarsRightA );
-    // ShowStatus( "SunMarsAngle: " + SunMarsAngle.ToString( "N2" ));
-
-    // Mars is about 227,939,200 km from the Sun.
-    // Earth is about 149,597,871 km from the Sun.
-    // Earth to Sun is one Astronomical unit.
-
-    double DistanceMarsToSun = 227939.2;
-    double DistanceEarthToSun = 149597.9;
-
-    // What is its distance from Mars to the Earth?
-    // Minimum:  54,600,000 km
-    // Maximum: 401,000,000 km
-
-    // double EarthMarsDistance = GetEarthPlanetDistance(
-    //               SunMarsAngle, // As seen from Earth.
-    //               DistanceMarsToSun,
-    //               DistanceEarthToSun );
-
-    double Distance = EarthMarsDistance;
-    */
-
-    // The earth is moving closer to Mars now.
-    double Distance = 168947;
+    double Distance = ModelConstants.DistanceToMars;
 
     Mars.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Mars.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
@@ -679,17 +626,15 @@ namespace ClimateModel
 
     try
     {
-    // ShowStatus( "Adding Mercury:" );
-
     Mercury = new PlanetSphere( MForm );
 
-    // Radius in thousands of kilometers.
-    Mercury.Radius = 2.440 * 100;
+    //               m  t
+    Mercury.Radius = 2440000d * RadiusScale;
 
     double RightAscension = MercuryRightA;
     double Declination = MercuryDecl;
 
-    double Distance = 92770;
+    double Distance = ModelConstants.DistanceToMercury;
 
     Mercury.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Mercury.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
@@ -713,12 +658,12 @@ namespace ClimateModel
     Venus = new PlanetSphere( MForm );
 
     // Radius in thousands of kilometers.
-    Venus.Radius = 6.051 * 100; // 6,051 km
+    Venus.Radius = 6051000 * RadiusScale; // 6,051 km
 
     double RightAscension = VenusRightA;
     double Declination = VenusDecl;
 
-    double Distance = 237239;
+    double Distance = ModelConstants.DistanceToVenus;
 
     Venus.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Venus.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
@@ -734,13 +679,13 @@ namespace ClimateModel
     {
     Jupiter = new PlanetSphere( MForm );
 
-    // Radius in thousands of kilometers.
-    Jupiter.Radius = 69.911 * 1000; // 69,911 km
+    //                m  t
+    Jupiter.Radius = 69911000d * RadiusScale; // 69,911 km
 
     double RightAscension = JupiterRightA;
     double Declination = JupiterDecl;
 
-    double Distance = 695695;
+    double Distance = ModelConstants.DistanceToJupiter;
 
     Jupiter.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Jupiter.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
@@ -757,13 +702,13 @@ namespace ClimateModel
     {
     Saturn = new PlanetSphere( MForm );
 
-    // Radius in thousands of kilometers.
-    Saturn.Radius = 58.232 * 1000; // 58,232 km
+    //               m  t
+    Saturn.Radius = 58232000d * RadiusScale; // 58,232 km
 
     double RightAscension = SaturnRightA;
     double Declination = SaturnDecl;
 
-    double Distance = 1498032;
+    double Distance = ModelConstants.DistanceToSaturn;
 
     Saturn.Position.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
     Saturn.Position.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
