@@ -160,8 +160,7 @@ namespace ClimateModel
 
     // They should be orthogonal to each other.
     double TestDot = DotProduct( ref A, ref Result );
-    // if( Math.Abs( TestDot ) > 0.0000000000001 )
-    if( Math.Abs( TestDot ) > 0.00001 )
+    if( Math.Abs( TestDot ) > 0.00000001 )
       throw( new Exception( "TestDot should be zero." ));
 
     }
