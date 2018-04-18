@@ -22,15 +22,27 @@ namespace ClimateModel
   {
   internal Vector3.Vector Position;
   internal Vector3.Vector Velocity;
-
-
-  // internal double Mass;
-
+  internal Vector3.Vector Acceleration;
+  internal double Mass;
+  // The time as seen from this local system.
+  // internal double LocalClock;
 
 
   abstract internal void MakeNewGeometryModel();
 
   abstract internal GeometryModel3D GetGeometryModel();
+
+
+
+  internal void SetNextPositionFromVelocity(
+                                  double TimeDelta )
+    {
+    Vector3.Vector MoveBy = new Vector3.Vector();
+    Vector3.Copy( ref MoveBy, ref Velocity );
+    // It moves by this much in TimeDelta time.
+    Vector3.MultiplyWithScalar( ref MoveBy, TimeDelta );
+    Vector3.Add( ref Position, ref MoveBy );
+    }
 
 
 
