@@ -447,10 +447,18 @@ namespace ClimateModel
 */
 
 
+  internal void RotateView()
+    {
+    RefFrame.RotateView();
+    }
+
+
+
   internal void DoTimeStep()
     {
     RefFrame.DoTimeStep();
     }
+
 
 
   }
