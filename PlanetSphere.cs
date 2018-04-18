@@ -268,7 +268,7 @@ namespace ClimateModel
     double RowLatitude = 90;
     double RowLatDelta = 10;
 
-    int MaximumVertexes = 256;
+    int MaximumVertexes = 64;
     int HowMany = 4;
     for( int Index = 1; Index <= VertexRowsMiddle; Index++ )
       {
