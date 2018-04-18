@@ -12,6 +12,8 @@ namespace ClimateModel
 
   static class ModelConstants
   {
+  // https://en.wikipedia.org/wiki/Ricci_calculus
+
   // Double precision format:
   // 53-bit "significand precision".
   // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -19,6 +21,13 @@ namespace ClimateModel
   // Quad precision:
   // 113-bit significand precision.
   // https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
+
+
+  /////////////////////////////////////////////////
+  // Float128
+  // https://gcc.gnu.org/onlinedocs/libquadmath.pdf
+  /////////////////////////////////////////////////
+
 
   // binary256:
   // 237-bit significand precision.
@@ -38,23 +47,108 @@ namespace ClimateModel
   internal const double TenToMinus20 = 1.0d / TenTo20;
 
 
+  internal const double SpeedOfLight = 299792458.0d;
+  internal const double SpeedOfLightSqr =
+             SpeedOfLight * SpeedOfLight;
+
+  // The speed of light in a vacuum is
+  // 299,792,458 meters per second.
+  // One meter is actually _defined_ by how long it
+  // takes light to travel in 1 / 299,792,458 seconds.
+  // It takes about 8.3 minutes for light to travel
+  // from the sun to the Earth.
+
+
   // Meters^3  Kilograms^-1  Seconds^-2
   // https://en.wikipedia.org/wiki/Gravitational_constant
   internal const double GravitationConstant =
+               TenTo6 * // Make it amplified for test.
                6.6740831d *
                (TenToMinus10 * TenToMinus1);
 
+
+  // Links to the planets:
+  // https://en.wikipedia.org/wiki/Solar_System
+
   // Mass in kilograms.
+  internal const double MassOfSun = 1.98855d *
+                                      TenTo20 *
+                                      TenTo10;
+
   internal const double MassOfEarth = 5.97237d *
                                       TenTo20 *
                                       TenTo3 *
                                       TenTo1;
 
-  // Kilograms cancels out, so EarthG is in units
-  // of Meters^3  Seconds^-2
+
+  internal const double MassOfMoon = 7.342d *
+                                      TenTo20 *
+                                      TenTo1 *
+                                      TenTo1;
+
+  internal const double MassOfMercury = 3.3011d *
+                                      TenTo20 *
+                                      TenTo3;
+
+  internal const double MassOfVenus = 4.8675d *
+                                      TenTo20 *
+                                      TenTo3 *
+                                      TenTo1;
+
+  internal const double MassOfMars = 6.4171d *
+                                      TenTo20 *
+                                      TenTo3;
+
+  internal const double MassOfJupiter = 1.8982d *
+                                      TenTo20 *
+                                      TenTo6 *
+                                      TenTo1;
+
+  internal const double MassOfSaturn = 5.6834d *
+                                      TenTo20 *
+                                      TenTo6;
 
 
 
+  // The density of air at sea level is about
+  // 1.2 kg/m3
+
+  // "The atmosphere has a mass of about
+  // 5.15 X 10^18 kg, three quarters of which is
+  // within about 11 km (6.8 mi; 36,000 ft) of the
+  // surface."
+
+  internal const double DistanceToSun =
+             150184843d * TenTo3; // Meters
+  internal const double PrevDistanceToSun =
+             149932211d * TenTo3;
+
+  internal const double DistanceToMoon =
+                380000d * TenTo3;
+
+  internal const double DistanceToMercury =
+                 100737d * TenTo6;
+
+  internal const double DistanceToVenus =
+                226286d * TenTo6;
+
+  internal const double DistanceToMars =
+                143316d * TenTo6;
+
+  internal const double DistanceToJupiter =
+                669762d * TenTo6;
+
+  internal const double DistanceToSaturn =
+               1451404d * TenTo6;
+
+
+
+  internal const double EarthOrbitCircumference =
+            DistanceToSun * 2.0d * Math.PI;
+
+
+  internal const double EarthRotationAnglePerSecond =
+             (2.0d  * Math.PI) / (24 * 60 * 60);
 
   }
 }
