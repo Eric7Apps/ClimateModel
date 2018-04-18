@@ -224,9 +224,7 @@ namespace ClimateModel
       {
       if( e.KeyCode == Keys.T )
         {
-        // MForm.ShowStatus( " " );
-        // MForm.ShowStatus( "T for time step." );
-        Scene.DoTimeStep();
+        Scene.RotateView();
 /*
   private void SetCameraTo( double X,
                             double Y,
@@ -241,6 +239,23 @@ namespace ClimateModel
         return;
         }
 
+      if( e.KeyCode == Keys.S )
+        {
+        Scene.DoTimeStep();
+
+/*
+  private void SetCameraTo( double X,
+                            double Y,
+                            double Z,
+                            double LookX,
+                            double LookY,
+                            double LookZ,
+                            double UpX,
+                            double UpY,
+                            double UpZ )
+                            */
+        return;
+        }
 
       if( e.KeyCode == Keys.E )
         {
