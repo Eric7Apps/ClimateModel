@@ -27,7 +27,6 @@ namespace ClimateModel
   private int VertexRowsLast = 0;
   private int LastVertexIndex = 0;
   internal double LongitudeHoursRadians = 0; // Time change.
-  internal static double ThreeDSizeScale = 0.000001;
 
 
   public struct LatLongPosition
@@ -172,9 +171,9 @@ namespace ClimateModel
     // Surface.Positions.Clear(); Removes all values.
 
     // Use a scale for drawing.
-    double ScaledX = Pos.X * ThreeDSizeScale;
-    double ScaledY = Pos.Y * ThreeDSizeScale;
-    double ScaledZ = Pos.Z * ThreeDSizeScale;
+    double ScaledX = Pos.X * ModelConstants.ThreeDSizeScale;
+    double ScaledY = Pos.Y * ModelConstants.ThreeDSizeScale;
+    double ScaledZ = Pos.Z * ModelConstants.ThreeDSizeScale;
     Point3D VertexP = new Point3D( ScaledX, ScaledY, ScaledZ );
     Surface.Positions.Add( VertexP );
 
