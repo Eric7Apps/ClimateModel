@@ -47,6 +47,8 @@ namespace ClimateModel
   internal const double TenToMinus20 = 1.0d / TenTo20;
 
 
+  internal const double ThreeDSizeScale = TenToMinus6;
+
   internal const double SpeedOfLight = 299792458.0d;
   internal const double SpeedOfLightSqr =
              SpeedOfLight * SpeedOfLight;
@@ -70,6 +72,11 @@ namespace ClimateModel
   // Links to the planets:
   // https://en.wikipedia.org/wiki/Solar_System
 
+  internal const double EarthRadiusMajor = 6378137d; // Equator
+  internal const double EarthRadiusMinor = 6356752d; // poles
+  // Test squished ellipsoid:
+  // internal const double EarthRadiusMinor = 2000000d;
+
   // Mass in kilograms.
   internal const double MassOfSun = 1.98855d *
                                       TenTo20 *
@@ -85,6 +92,9 @@ namespace ClimateModel
                                       TenTo20 *
                                       TenTo1 *
                                       TenTo1;
+
+  internal const double MassOfEarthPlusMoon =
+             MassOfEarth + MassOfMoon;
 
   internal const double MassOfMercury = 3.3011d *
                                       TenTo20 *
@@ -119,7 +129,7 @@ namespace ClimateModel
   // surface."
 
   internal const double DistanceToSun =
-             150184843d * TenTo3; // Meters
+             150427000d * TenTo3; // Meters
   internal const double PrevDistanceToSun =
              149932211d * TenTo3;
 
@@ -127,19 +137,20 @@ namespace ClimateModel
                 380000d * TenTo3;
 
   internal const double DistanceToMercury =
-                 100737d * TenTo6;
+                 112466d * TenTo6;
 
   internal const double DistanceToVenus =
-                226286d * TenTo6;
+                222208d * TenTo6;
 
+// ===== Get the previous distance on this one.
   internal const double DistanceToMars =
-                143316d * TenTo6;
+                135493d * TenTo6;
 
   internal const double DistanceToJupiter =
-                669762d * TenTo6;
+                664476d * TenTo6;
 
   internal const double DistanceToSaturn =
-               1451404d * TenTo6;
+               1437338d * TenTo6;
 
 
 
@@ -149,6 +160,8 @@ namespace ClimateModel
 
   internal const double EarthRotationAnglePerSecond =
              (2.0d  * Math.PI) / (24 * 60 * 60);
+
+
 
   }
 }
