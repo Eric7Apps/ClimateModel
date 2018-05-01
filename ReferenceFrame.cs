@@ -8,6 +8,19 @@
 // it sets objects in a reference frame.
 
 
+// https://en.wikipedia.org/wiki/Celestial_mechanics
+// https://en.wikipedia.org/wiki/Orbit_of_the_Moon
+
+// Calculate the orbit of planets as basic ellipses
+// to compare with the data.  The moon as a basic
+// ellipse.
+// "All eight planets have almost circular orbits."
+// https://en.wikipedia.org/wiki/Numerical_model_of_the_Solar_System
+
+// What is the average acceleration from the
+// beginning of a time step to the end of it?
+
+
 // The sun has about 99.8 percent of the mass
 // of the Solar System.  Most of the rest of the
 // mass is in Jupiter.
@@ -17,18 +30,9 @@
 // (From above the north pole.)
 
 
-// https://en.wikipedia.org/wiki/Barycenter
 // https://en.wikipedia.org/wiki/International_Celestial_Reference_Frame
 // https://en.wikipedia.org/wiki/Equatorial_coordinate_system
-// https://en.wikipedia.org/wiki/Solar_System
-// https://en.wikipedia.org/wiki/Equinox
-// https://en.wikipedia.org/wiki/Theory_of_tides
-// https://en.wikipedia.org/wiki/Celestial_mechanics
-// https://en.wikipedia.org/wiki/Continuum_mechanics
 // https://en.wikipedia.org/wiki/Orbital_mechanics
-// https://en.wikipedia.org/wiki/Epoch_(astronomy)
-// https://en.wikipedia.org/wiki/Astrometry
-// https://en.wikipedia.org/wiki/Ephemeris
 
 
 
@@ -47,7 +51,7 @@ namespace ClimateModel
   private Model3DGroup Main3DGroup;
   private SpaceObject[] SpaceObjectArray;
   private int SpaceObjectArrayLast = 0;
-  private double RadiusScale = 400.0;
+  private double RadiusScale = 300.0;
   private PlanetSphere Sun;
   private PlanetSphere Mercury;
   private PlanetSphere Venus;
@@ -107,55 +111,44 @@ namespace ClimateModel
     // https://en.wikipedia.org/wiki/Right_ascension
 
     SunRightA =
-       NumbersEC.RightAscensionToRadians( 1, 37, 46 );
+       NumbersEC.RightAscensionToRadians( 2, 7, 43 );
     SunDecl =
-       NumbersEC.DegreesMinutesToRadians( 10, 10, 11 );
+       NumbersEC.DegreesMinutesToRadians( 12, 54, 50 );
     SunRightAPrev =
-       NumbersEC.RightAscensionToRadians( 1, 30, 35 );
+       NumbersEC.RightAscensionToRadians( 2, 4, 16 );
     SunDeclPrev =
-       NumbersEC.DegreesMinutesToRadians( 9, 28, 39 );
+       NumbersEC.DegreesMinutesToRadians( 12, 36, 39 );
 
     MoonRightA =
-       NumbersEC.RightAscensionToRadians( 2, 13, 11 );
+       NumbersEC.RightAscensionToRadians( 9, 59, 29 );
     MoonDecl =  // Shown as negative zero.
-       NumbersEC.DegreesMinutesToRadians( 8, 6, 11 );
-
-
-// 23, 45, 58
-// -5, 14, 23
-
-// 22, 58, 44
-// -9, 16, 42
-
-// 17, 55, 1
-// -19, 55, 27
-
+       NumbersEC.DegreesMinutesToRadians( 13, 44, 49 );
 
 
     MercuryRightA =
-       NumbersEC.RightAscensionToRadians( 0, 18, 17 );
+       NumbersEC.RightAscensionToRadians( 0, 32, 52 );
     MercuryDecl =
-       NumbersEC.DegreesMinutesToRadians( 1, 1, 40 );
+       NumbersEC.DegreesMinutesToRadians( 1, 2, 47 );
 
     VenusRightA =
-       NumbersEC.RightAscensionToRadians( 3, 9, 47 );
+       NumbersEC.RightAscensionToRadians( 3, 49, 39 );
     VenusDecl =
-       NumbersEC.DegreesMinutesToRadians( 17, 55, 22 );
+       NumbersEC.DegreesMinutesToRadians( 20, 38, 59 );
 
     MarsRightA =
-       NumbersEC.RightAscensionToRadians( 19, 10, 26 );
+       NumbersEC.RightAscensionToRadians( 19, 27, 56 );
     MarsDecl =
-       NumbersEC.DegreesMinutesToRadians( -23, 14, 54 );
+       NumbersEC.DegreesMinutesToRadians( -22, 58, 44 );
 
     SaturnRightA =
-       NumbersEC.RightAscensionToRadians( 18, 38, 26 );
+       NumbersEC.RightAscensionToRadians( 18, 38, 17 );
     SaturnDecl =
-       NumbersEC.DegreesMinutesToRadians( -22, 15, 18 );
+       NumbersEC.DegreesMinutesToRadians( -22, 15, 22 );
 
     JupiterRightA =
-       NumbersEC.RightAscensionToRadians( 15, 14, 47 );
+       NumbersEC.RightAscensionToRadians( 15, 11, 9 );
     JupiterDecl =
-       NumbersEC.DegreesMinutesToRadians( -16, 43, 9 );
+       NumbersEC.DegreesMinutesToRadians( -16, 28, 39 );
 
     }
 
@@ -249,10 +242,10 @@ namespace ClimateModel
 
     double OuterDistance = 1.5;
 
-    double X = Sun.Position.X * PlanetSphere.ThreeDSizeScale;
-    double Y = Sun.Position.Y * PlanetSphere.ThreeDSizeScale;
-    double Z = Sun.Position.Z * PlanetSphere.ThreeDSizeScale;
-    double RadiusScaled = Sun.Radius * PlanetSphere.ThreeDSizeScale;
+    double X = Sun.Position.X * ModelConstants.ThreeDSizeScale;
+    double Y = Sun.Position.Y * ModelConstants.ThreeDSizeScale;
+    double Z = Sun.Position.Z * ModelConstants.ThreeDSizeScale;
+    double RadiusScaled = Sun.Radius * ModelConstants.ThreeDSizeScale;
 
     // This is a crude way of making the outside of
     // the sun look bright, and at the same time
@@ -337,14 +330,16 @@ namespace ClimateModel
 
   private void AddSun()
     {
+    // https://theskylive.com/sun-info#ephemeris
+
     // https://theskylive.com/sun-info
     // https://en.wikipedia.org/wiki/Sun
 
     Sun = new PlanetSphere( MForm );
 
     Sun.Radius = 695700 * ModelConstants.TenTo3;
+    Sun.Mass = ModelConstants.MassOfSun;
 
-    // Sun.Mass;
 
     double RightAscension = SunRightA;
     double Declination = SunDecl;
@@ -426,13 +421,15 @@ namespace ClimateModel
     Earth.Position.Y = 0;
     Earth.Position.Z = 0;
 
+    Earth.Mass = ModelConstants.MassOfEarth;
+
     // Distance in Meters.
     // Earth orbit in days: 365.256
-    const double VelocityPerDay = 
+    const double VelocityPerDay =
        ModelConstants.EarthOrbitCircumference / 365.256d;
-    const double VelocityPerHour = 
+    const double VelocityPerHour =
                         VelocityPerDay / 24d;
-    const double VelocityPerSecond = 
+    const double VelocityPerSecond =
               VelocityPerHour / (60.0d * 60.0d);
 
     ShowStatus( " " );
@@ -479,6 +476,7 @@ namespace ClimateModel
 
     // Radius: About 1,737.1 kilometers.
     Moon.Radius = 1737100;
+    Moon.Mass = ModelConstants.MassOfMoon;
 
     double RightAscension = MoonRightA;
     double Declination = MoonDecl;
@@ -508,6 +506,7 @@ namespace ClimateModel
     Mars = new PlanetSphere( MForm );
 
     Mars.Radius = 3396000 * RadiusScale;
+    Mars.Mass = ModelConstants.MassOfMars;
 
     double RightAscension = MarsRightA;
     double Declination = MarsDecl;
@@ -630,6 +629,7 @@ namespace ClimateModel
 
     //               m  t
     Mercury.Radius = 2440000d * RadiusScale;
+    Mercury.Mass = ModelConstants.MassOfMercury;
 
     double RightAscension = MercuryRightA;
     double Declination = MercuryDecl;
@@ -659,6 +659,7 @@ namespace ClimateModel
 
     // Radius in thousands of kilometers.
     Venus.Radius = 6051000 * RadiusScale; // 6,051 km
+    Venus.Mass = ModelConstants.MassOfVenus;
 
     double RightAscension = VenusRightA;
     double Declination = VenusDecl;
@@ -681,6 +682,7 @@ namespace ClimateModel
 
     //                m  t
     Jupiter.Radius = 69911000d * RadiusScale; // 69,911 km
+    Jupiter.Mass = ModelConstants.MassOfJupiter;
 
     double RightAscension = JupiterRightA;
     double Declination = JupiterDecl;
@@ -704,6 +706,7 @@ namespace ClimateModel
 
     //               m  t
     Saturn.Radius = 58232000d * RadiusScale; // 58,232 km
+    Saturn.Mass = ModelConstants.MassOfSaturn;
 
     double RightAscension = SaturnRightA;
     double Declination = SaturnDecl;
@@ -721,16 +724,145 @@ namespace ClimateModel
 
 
 
-  internal void DoTimeStep()
+  internal void RotateView()
     {
-    // MForm.ShowStatus( "DoTimeStep() in RefFrame." );
-
     double AddHours = NumbersEC.DegreesToRadians( 0.5 * (360.0d / 24.0d) );
     Earth.LongitudeHoursRadians = Earth.LongitudeHoursRadians + AddHours;
     Earth.MakeNewGeometryModel();
     ResetGeometryModels();
-    // MakeNewGeometryModels();
     }
+
+
+
+
+
+  internal void DoTimeStep()
+    {
+    // Add up the kinetic and potential energy to
+    // see if it's valid.
+
+
+    // Velocity is given as part of the initial data.
+    // So use it to get the next position.
+
+    const double TimeDelta = 60 * 10; // seconds.
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObject SpaceObj = SpaceObjectArray[Count];
+      SpaceObj.SetNextPositionFromVelocity(
+                                    TimeDelta );
+      }
+
+
+    Vector3.Vector AccelVector = new Vector3.Vector();
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObject SpaceObj = SpaceObjectArray[Count];
+      Vector3.SetZero( ref SpaceObj.Acceleration );
+
+      for( int Count2 = 0; Count2 < SpaceObjectArrayLast; Count2++ )
+        {
+        SpaceObject FarAwaySpaceObj = SpaceObjectArray[Count2];
+        if( FarAwaySpaceObj.Mass < 1 )
+          throw( new Exception( "The space object has no mass." ));
+
+        Vector3.Copy( ref AccelVector, ref FarAwaySpaceObj.Position );
+        Vector3.Subtract( ref AccelVector, ref SpaceObj.Position );
+
+        double Distance = Vector3.Norm( ref AccelVector );
+
+        // Check if it's the same planet at zero
+        // distance.
+        if( Distance < 1.0 )
+          continue;
+
+        double Acceleration =
+             (ModelConstants.GravitationConstant *
+             FarAwaySpaceObj.Mass) /
+             (Distance * Distance);
+
+        Vector3.Normalize( ref AccelVector, AccelVector );
+        Vector3.MultiplyWithScalar( ref AccelVector, Acceleration );
+        Vector3.Add( ref SpaceObj.Acceleration, ref AccelVector );
+        }
+
+      // Add the new Acceleration vector to the
+      // velocity vector.
+      Vector3.Add( ref SpaceObj.Velocity, ref SpaceObj.Acceleration );
+      }
+
+    ShowStatus( " " );
+    ShowStatus( "Velocity.X: " + Earth.Velocity.X.ToString( "N2" ));
+    ShowStatus( "Velocity.Y: " + Earth.Velocity.Y.ToString( "N2" ));
+    ShowStatus( "Velocity.Z: " + Earth.Velocity.Z.ToString( "N2" ));
+    ShowStatus( " " );
+
+
+    Earth.AddTimeStepRotateAngle();
+
+    // === Earth.SetPlanetGravityAcceleration( this );
+
+// ===== Calculate accel vector for each vertex.
+// I need the distance from each vertex to each
+// planet.  So add the center of mass coordinate
+// to the vertex coordinate.
+// Compare this to the acceleration vector at
+// the center of mass.
+// A speck of dust falls toward Jupiter at the
+// same rate as the sun falls toward it, if it's the
+// same distance away.
+
+    // Move Earth only:
+    // Earth.MakeNewGeometryModel();
+    // ResetGeometryModels();
+
+    // Move all of the planets:
+    MakeNewGeometryModels();
+    }
+
+
+
+/*
+======
+  internal void SetPlanetGravityAcceleration(
+                  ref Vector3.Vector Position )
+                  ref Vector3.Vector Acceleration )
+    {
+    // This adds to what ever is already on the
+    // incoming Acceleration vector.
+
+    Vector3.Vector AccelVector = new Vector3.Vector();
+
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObject SpaceObj = SpaceObjectArray[Count];
+      // if it's Saturn.... how strong is the gravity?
+
+      if( SpaceObj.Mass < 1 )
+        throw( new Exception( "The space object has no mass." ));
+
+      Vector3.Copy( ref AccelVector, ref SpaceObj.Position );
+      Vector3.Subtract( ref AccelVector, ref Position );
+      double Distance = Vector3.Norm( ref AccelVector );
+
+      // Check if it's the same planet at zero
+      // distance.
+      if( Distance < 1.0 )
+        continue;
+
+      double Acceleration =
+             (ModelConstants.GravitationConstant *
+             SpaceObj.Mass) /
+             (Distance * Distance);
+
+        Vector3.Normalize( ref AccelVector, AccelVector );
+        Vector3.MultiplyWithScalar( ref AccelVector, Acceleration );
+        Vector3.Add( ref Acceleration, ref AccelVector );
+        }
+      }
+    }
+*/
+
 
 
 
