@@ -638,16 +638,17 @@ namespace ClimateModel
 
 
 
-/*
+
   private void MakeVerticalVertexes()
     {
-    for( int Row = 0; Row < VertexRowsLast; Row++ )
+/*
+    for( int Row = 0; Row < RefVertexArrayLast; Row++ )
       {
-      int HowMany = VertexRows[Row].RowLast;
+      int HowMany = RefVertexArray[Row, 0].RowLast;
       for( int Count = 0; Count < HowMany; Count++ )
         {
         ReferenceVertex BottomVertex =
-             VertexRows[Row].RefVertexArray[Count, 0];
+             RefVertexArray[Row].RefVertexArray[Count, 0];
 
         Vector3.Vector DirectionVector = new Vector3.Vector();
         Vector3.Copy( ref DirectionVector,
@@ -659,7 +660,7 @@ namespace ClimateModel
         // 10K meters:
         double VerticalDelta = 10000d; // size /  VerticalVertexCount;
         Vector3.MultiplyWithScalar( ref DirectionVector, VerticalDelta );
-
+       
         for( int Vertical = 1; Vertical < ModelConstants.VerticalVertexCount; Vertical++ )
           {
           ReferenceVertex NextLower = VertexRows[Row].
@@ -684,8 +685,9 @@ namespace ClimateModel
           }
         }
       }
+    */
     }
-*/
+
 
 
 
