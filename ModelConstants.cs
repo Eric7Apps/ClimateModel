@@ -75,7 +75,7 @@ namespace ClimateModel
   internal const double EarthRadiusMajor = 6378137d; // Equator
   internal const double EarthRadiusMinor = 6356752d; // poles
   // Test squished ellipsoid:
-  // internal const double EarthRadiusMinor = 2000000d;
+  // internal const double EarthRadiusMinor = 3000000d;
 
   // Mass in kilograms.
   internal const double MassOfSun = 1.98855d *
