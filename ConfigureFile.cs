@@ -1,26 +1,23 @@
-// Programming by Eric Chauvin.
-// Notes on this source code are at:
-// ericsourcecode.blogspot.com
+// Copyright Eric Chauvin 2018.
+// My blog is at:
+// https://scientificmodels.blogspot.com/
 
 
 using System;
 using System.Text;
 // using System.Windows.Forms; // Application.
 using System.Collections.Generic;
-// using System.Threading.Tasks;
 using System.IO;
-///////////
-// using CodeEditor; // For the MainForm for testing.
 
 
-namespace ECCommon
+
+namespace ClimateModel
 {
   class ConfigureFile
   {
-  // private MainForm MForm;
+  private MainForm MForm;
   private Dictionary<string, string> CDictionary;
   private string FileName;
-  // private AESEncryption AESEncrypt;
 
 
   private ConfigureFile()
@@ -29,15 +26,11 @@ namespace ECCommon
 
 
 
-  internal ConfigureFile( string FileToUseName ) // , MainForm UseForm )
+  internal ConfigureFile( string FileToUseName, MainForm UseForm )
     {
-    // MForm = UseForm;
+    MForm = UseForm;
 
     FileName = FileToUseName;
-    // AESEncrypt = new AESEncryption();
-    // string ExampleKey = "Where does this key come from? 
-    // AESEncrypt.SetKey( ExampleKey );
-
     CDictionary = new Dictionary<string, string>();
     ReadFromTextFile();
     }
@@ -64,7 +57,7 @@ namespace ECCommon
 
     if( KeyWord == "" )
       {
-      // MForm.ShowStatus( "Can't add an empty keyword to the dictionary in ConfigureFile.cs." );
+      MForm.ShowStatus( "Can't add an empty keyword to the dictionary in ConfigureFile.cs." );
       return;
       }
 
@@ -89,7 +82,7 @@ namespace ECCommon
     {
     using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
-      while( SReader.Peek() >= 0 ) 
+      while( SReader.Peek() >= 0 )
         {
         string Line = SReader.ReadLine();
         if( Line == null )
@@ -127,10 +120,10 @@ namespace ECCommon
 
     return true;
     }
-    catch( Exception ) // Except )
+    catch( Exception Except )
       {
-      // MForm.ShowStatus( "Could not read the file: \r\n" + FileName );
-      // MForm.ShowStatus( Except.Message );
+      MForm.ShowStatus( "Could not read the file: \r\n" + FileName );
+      MForm.ShowStatus( Except.Message );
       return false;
       }
     }
@@ -152,15 +145,15 @@ namespace ECCommon
 
       SWriter.WriteLine( " " );
       }
-    }
-    catch( Exception ) // Except )
-      {
-      // MForm.ShowStatus( "Could not write the configuration data to the file." );
-      // MForm.ShowStatus( Except.Message );
-      return false;
-      }
 
     return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not write the configuration data to the file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
     }
 
 
