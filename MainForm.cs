@@ -1,6 +1,6 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 
@@ -8,11 +8,9 @@
 
 
 
-// Advanced Vector Extensions
 
 
 using System;
-// using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -26,7 +24,7 @@ namespace ClimateModel
   // public partial class MainForm : Form
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "5/1/2018";
+  internal const string VersionDate = "6/13/2018";
   internal const int VersionNumber = 09; // 0.9
   private System.Threading.Mutex SingleInstanceMutex = null;
   private bool IsSingleInstance = false;
@@ -37,8 +35,6 @@ namespace ClimateModel
   // private ConfigureFile ConfigFile;
   private ThreeDForm ThreeDF;
   private MenuEvents MEvents;
-
-
   // System.Windows.Forms.
   private TextBox MainTextBox;
   private System.Windows.Forms.Timer SingleInstanceTimer;
@@ -56,6 +52,9 @@ namespace ClimateModel
     IsSingleInstance = true;
 
     ShowStatus( "Version Date: " + VersionDate );
+
+    DrawBitmap DrawBMap = new DrawBitmap( this );
+    DrawBMap.MakeImageFile( "C:\\Eric\\ClimateModel\\bin\\Release\\Earth.jpg" );
     }
 
 
@@ -77,9 +76,6 @@ namespace ClimateModel
   // This has to be added in the Program.cs file.
   //   Application.ThreadException += new ThreadExceptionEventHandler( MainForm.UIThreadException );
   //   Application.SetUnhandledExceptionMode( UnhandledExceptionMode.CatchException );
-    // What about this part?
-    // AppDomain.CurrentDomain.UnhandledException +=
-       //  new UnhandledExceptionEventHandler( CurrentDomain_UnhandledException );
   internal static void UIThreadException( object sender, ThreadExceptionEventArgs t )
     {
     string ErrorString = t.Exception.Message;
