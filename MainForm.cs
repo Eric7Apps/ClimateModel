@@ -53,8 +53,12 @@ namespace ClimateModel
 
     ShowStatus( "Version Date: " + VersionDate );
 
-    DrawBitmap DrawBMap = new DrawBitmap( this );
-    DrawBMap.MakeImageFile( "C:\\Eric\\ClimateModel\\bin\\Release\\Earth.jpg" );
+    // DrawBitmap DrawBMap = new DrawBitmap( this );
+    // DrawBMap.MakeImageFile( "C:\\Eric\\ClimateModel\\bin\\Release\\Earth.jpg" );
+
+    JPLHorizonsData JPLData = new JPLHorizonsData( this );
+    string FileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLEarth.txt";
+    JPLData.ReadFromTextFile( FileName );
     }
 
 
