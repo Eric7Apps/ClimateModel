@@ -1,6 +1,6 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 
@@ -27,6 +27,7 @@ namespace ClimateModel
   private int VertexRowsLast = 0;
   private int LastVertexIndex = 0;
   internal double LongitudeHoursRadians = 0; // Time change.
+  internal bool Emmissive = false;
 
 
   public struct LatLongPosition
@@ -60,9 +61,10 @@ namespace ClimateModel
 
 
 
-  internal PlanetSphere( MainForm UseForm )
+  internal PlanetSphere( MainForm UseForm, bool IsEmmissive )
     {
     MForm = UseForm;
+    Emmissive = IsEmmissive;
 
     GeoMod = new GeometryModel3D();
     }
@@ -80,16 +82,25 @@ namespace ClimateModel
     {
     try
     {
-    DiffuseMaterial SolidMat = new DiffuseMaterial();
-    // SolidMat.Brush = Brushes.Blue;
-    SolidMat.Brush = SetTextureImageBrush();
+    if( Emmissive )
+      {
+      EmissiveMaterial SolidMatE = new EmissiveMaterial();
+      SolidMatE.Brush = SetTextureImageBrush();
+      GeoMod.Material = SolidMatE;
+      }
+    else
+      {
+      DiffuseMaterial SolidMat = new DiffuseMaterial();
+      // SolidMat.Brush = Brushes.Blue;
+      SolidMat.Brush = SetTextureImageBrush();
+      GeoMod.Material = SolidMat;
+      }
 
-    MakeSphericalModel();
+     MakeSphericalModel();
 
     // if( Surface == null )
 
     GeoMod.Geometry = Surface;
-    GeoMod.Material = SolidMat;
     }
     catch( Exception Except )
       {
@@ -101,9 +112,6 @@ namespace ClimateModel
 
   private ImageBrush SetTextureImageBrush()
     {
-    // Imaging Namespace:
-    // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging?view=netframework-4.7.1
-
     // ImageDrawing:
     // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imagedrawing?view=netframework-4.7.1
 
