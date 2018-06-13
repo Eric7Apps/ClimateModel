@@ -1,12 +1,10 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 using System;
-// using System.Collections.Generic;
 using System.Text;
-// using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -25,7 +23,7 @@ namespace ClimateModel
   private Model3DGroup Main3DGroup = new Model3DGroup();
   private ModelVisual3D MainModelVisual3D = new ModelVisual3D();
   internal ReferenceFrame RefFrame;
-
+  internal SolarSystem SolarS;
 
 
 
@@ -42,6 +40,8 @@ namespace ClimateModel
     MForm = UseForm;
 
     RefFrame = new ReferenceFrame( MForm, Main3DGroup );
+    SolarS = new SolarSystem( MForm, Main3DGroup );
+
     SetupCamera();
     MainModelVisual3D.Content = Main3DGroup;
     }
