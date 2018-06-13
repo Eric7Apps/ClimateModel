@@ -17,13 +17,6 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild
 MSBuild Reference:
 https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reference
 
-MSBuild reserved and well known properties:
-Like:
-MSBuildProjectFile
-MSBuildProjectDirectory
-MSBuildBinPath
-MSBuildExtensionsPath
-and so on.
 https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-known-properties
 -->
 
@@ -69,6 +62,13 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="JPLHorizonsData.cs" />
+    <Compile Include="ConfigureFile.cs" />
+    <Compile Include="DrawBitmap.cs" />
+    <Compile Include="ECTime.cs" />
+    <Compile Include="SolarSystem.cs" />
+    <Compile Include="EarthSlice.cs" />
+    <Compile Include="ModelConstants.cs" />
     <Compile Include="Vector3.cs" />
     <Compile Include="MenuEvents.cs" />
     <Compile Include="Tetrahedron.cs" />
