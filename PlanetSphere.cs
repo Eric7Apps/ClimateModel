@@ -18,7 +18,6 @@ namespace ClimateModel
 {
   class PlanetSphere : SpaceObject
   {
-  private MainForm MForm;
   internal string TextureFileName = "";
   internal double Radius = 1;
   private MeshGeometry3D Surface;
@@ -28,6 +27,7 @@ namespace ClimateModel
   private int LastVertexIndex = 0;
   internal double LongitudeHoursRadians = 0; // Time change.
   internal bool Emmissive = false;
+
 
 
   public struct LatLongPosition
@@ -55,15 +55,14 @@ namespace ClimateModel
 
 
 
-  private PlanetSphere()
+  internal PlanetSphere( MainForm UseForm,
+                         string UseName,
+                         bool IsEmmissive,
+                         string JPLFileName
+                      ): base( UseForm,
+                               UseName,
+                               JPLFileName )
     {
-    }
-
-
-
-  internal PlanetSphere( MainForm UseForm, bool IsEmmissive )
-    {
-    MForm = UseForm;
     Emmissive = IsEmmissive;
 
     GeoMod = new GeometryModel3D();
@@ -104,7 +103,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeNewGeometryModel(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeNewGeometryModel(): " + Except.Message );
       }
     }
 
@@ -323,7 +322,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
       }
     }
 
@@ -381,7 +380,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakePoleTriangles(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakePoleTriangles(): " + Except.Message );
       }
     }
 
@@ -424,7 +423,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeRowTriangles(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -487,7 +486,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -551,7 +550,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeDoubleRowTriangles(): " + Except.Message );
       return false;
       }
     }
@@ -621,7 +620,7 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
+      ShowStatus( "Exception in PlanetSphere.MakeSphericalModel(): " + Except.Message );
       return false;
       }
     }
