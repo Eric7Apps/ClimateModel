@@ -92,7 +92,6 @@ the Designer.
     <Compile Include="PlanetSphere.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReferenceFrame.cs" />
     <Compile Include="SpaceObject.cs" />
     <Compile Include="StringsEC.cs" />
     <Compile Include="ThreeDForm.cs">
