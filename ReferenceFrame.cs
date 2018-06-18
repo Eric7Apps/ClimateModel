@@ -1,3 +1,8 @@
+/*
+This code is not being used anymore.
+It was replaced by SolarSystem.cs.
+
+
 // Copyright Eric Chauvin 2018.
 // My blog is at:
 // https://scientificmodels.blogspot.com/
@@ -77,40 +82,40 @@ namespace ClimateModel
     // https://theskylive.com/planets
 
     SunRightA =
-       NumbersEC.RightAscensionToRadians( 5, 6, 34 );
+       NumbersEC.RightAscensionToRadians( 5, 31, 33 );
     SunDecl =
-       NumbersEC.DegreesMinutesToRadians( 22, 52, 6 );
+       NumbersEC.DegreesMinutesToRadians( 23, 16, 32 );
 
     MoonRightA =
-       NumbersEC.RightAscensionToRadians( 0, 50, 23 );
+       NumbersEC.RightAscensionToRadians( 6, 33, 46 );
     MoonDecl =  // Shown as negative zero.
-       NumbersEC.DegreesMinutesToRadians( 0, 20, 26 );
+       NumbersEC.DegreesMinutesToRadians( 20, 44, 42 );
 
 
     MercuryRightA =
-       NumbersEC.RightAscensionToRadians( 5, 20, 56 );
+       NumbersEC.RightAscensionToRadians( 6, 17, 25 );
     MercuryDecl =
-       NumbersEC.DegreesMinutesToRadians( 24, 16, 57 );
+       NumbersEC.DegreesMinutesToRadians( 25, 9, 37 );
 
     VenusRightA =
-       NumbersEC.RightAscensionToRadians( 7, 44, 8 );
+       NumbersEC.RightAscensionToRadians( 8, 14, 5 );
     VenusDecl =
-       NumbersEC.DegreesMinutesToRadians( 23, 18, 39 );
+       NumbersEC.DegreesMinutesToRadians( 21, 56, 18 );
 
     MarsRightA =
-       NumbersEC.RightAscensionToRadians( 20, 41, 20 );
+       NumbersEC.RightAscensionToRadians( 20, 46, 13 );
     MarsDecl =
-       NumbersEC.DegreesMinutesToRadians( -21, 47, 25 );
+       NumbersEC.DegreesMinutesToRadians( -21, 55, 10 );
 
     SaturnRightA =
-       NumbersEC.RightAscensionToRadians( 18, 30, 0 );
+       NumbersEC.RightAscensionToRadians( 18, 28, 12 );
     SaturnDecl =
-       NumbersEC.DegreesMinutesToRadians( -22, 22, 59 );
+       NumbersEC.DegreesMinutesToRadians( -22, 24, 34 );
 
     JupiterRightA =
-       NumbersEC.RightAscensionToRadians( 14, 49, 52 );
+       NumbersEC.RightAscensionToRadians( 14, 47, 53 );
     JupiterDecl =
-       NumbersEC.DegreesMinutesToRadians( -15, 4, 11 );
+       NumbersEC.DegreesMinutesToRadians( -14, 56, 42 );
 
     }
 
@@ -275,7 +280,8 @@ namespace ClimateModel
     // https://theskylive.com/
     // https://en.wikipedia.org/wiki/Sun
 
-    Sun = new PlanetSphere( MForm, true );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSun.txt";
+    Sun = new PlanetSphere( MForm, true, JPLFileName );
 
     Sun.Radius = 695700 * ModelConstants.TenTo3;
     Sun.Mass = ModelConstants.MassOfSun;
@@ -323,7 +329,8 @@ namespace ClimateModel
     // https://en.wikipedia.org/wiki/Earth
 
     // Earth is an EarthGeoid, not a PlanetSphere.
-    Earth = new EarthGeoid( MForm );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLEarth.txt";
+    Earth = new EarthGeoid( MForm, JPLFileName );
 
     // Shift the time of day:
     // If I make this 3 then the Earth rotates to
@@ -340,7 +347,7 @@ namespace ClimateModel
 
     Earth.Mass = ModelConstants.MassOfEarth;
 
-    /*
+    ////////////////
     // Distance in Meters.
     // Earth orbit in days: 365.256
     const double VelocityPerDay =
@@ -374,7 +381,7 @@ namespace ClimateModel
 
     // Velocity.Z is at a maximum at the spring
     // equinox.
-    */
+    /////////
 
     // Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg";
     Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earthTest.jpg";
@@ -389,7 +396,8 @@ namespace ClimateModel
     // https://en.wikipedia.org/wiki/Moon
     // https://theskylive.com/
 
-    Moon = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMoon.txt";
+    Moon = new PlanetSphere( MForm, false, JPLFileName );
 
     // Radius: About 1,737.1 kilometers.
     Moon.Radius = 1737100;
@@ -416,7 +424,8 @@ namespace ClimateModel
     {
     try
     {
-    Mars = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMars.txt";
+    Mars = new PlanetSphere( MForm, false, JPLFileName );
 
     Mars.Radius = 3396000 * RadiusScale;
     Mars.Mass = ModelConstants.MassOfMars;
@@ -442,7 +451,8 @@ namespace ClimateModel
 
 
 
-  /* A rough approximation:
+  ////////////
+ A rough approximation:
   private double GetEarthPlanetDistance(
                    double SunPlanetAngle,
                    double DistancePlanetToSun,
@@ -527,7 +537,7 @@ namespace ClimateModel
       return -1;
       }
     }
-*/
+///////////
 
 
 
@@ -537,7 +547,8 @@ namespace ClimateModel
 
     try
     {
-    Mercury = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMercury.txt";
+    Mercury = new PlanetSphere( MForm, false, JPLFileName );
 
     //               m  t
     Mercury.Radius = 2440000d * RadiusScale;
@@ -566,7 +577,8 @@ namespace ClimateModel
 
   private void AddVenus()
     {
-    Venus = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLVenus.txt";
+    Venus = new PlanetSphere( MForm, false, JPLFileName );
 
     // Radius in thousands of kilometers.
     Venus.Radius = 6051000 * RadiusScale; // 6,051 km
@@ -589,7 +601,8 @@ namespace ClimateModel
 
   private void AddJupiter()
     {
-    Jupiter = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLJupiter.txt";
+    Jupiter = new PlanetSphere( MForm, false, JPLFileName );
 
     //                m  t
     Jupiter.Radius = 69911000d * RadiusScale; // 69,911 km
@@ -613,7 +626,8 @@ namespace ClimateModel
 
   private void AddSaturn()
     {
-    Saturn = new PlanetSphere( MForm, false );
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSaturn.txt";
+    Saturn = new PlanetSphere( MForm, false, JPLFileName );
 
     //               m  t
     Saturn.Radius = 58232000d * RadiusScale; // 58,232 km
@@ -716,7 +730,7 @@ namespace ClimateModel
 
 
 
-/*
+/////////
   internal void SetPlanetGravityAcceleration(
                   ref Vector3.Vector Position )
                   ref Vector3.Vector Acceleration )
@@ -754,10 +768,12 @@ namespace ClimateModel
         }
       }
     }
-*/
+///////////
 
 
 
 
   }
 }
+
+*/
