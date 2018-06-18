@@ -1,6 +1,7 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
+
 
 
 using System;
@@ -12,8 +13,6 @@ namespace ClimateModel
 
   static class ModelConstants
   {
-  // https://en.wikipedia.org/wiki/Ricci_calculus
-
   // Double precision format:
   // 53-bit "significand precision".
   // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -63,14 +62,11 @@ namespace ClimateModel
 
   // Meters^3  Kilograms^-1  Seconds^-2
   // https://en.wikipedia.org/wiki/Gravitational_constant
+// Check this value:
   internal const double GravitationConstant =
-               TenTo6 * // Make it amplified for test.
                6.6740831d *
                (TenToMinus10 * TenToMinus1);
 
-
-  // Links to the planets:
-  // https://en.wikipedia.org/wiki/Solar_System
 
   internal const double EarthRadiusMajor = 6378137d; // Equator
   internal const double EarthRadiusMinor = 6356752d; // poles
@@ -120,42 +116,33 @@ namespace ClimateModel
 
 
 
-  // The density of air at sea level is about
-  // 1.2 kg/m3
 
-  // "The atmosphere has a mass of about
-  // 5.15 X 10^18 kg, three quarters of which is
-  // within about 11 km (6.8 mi; 36,000 ft) of the
-  // surface."
+  // internal const double DistanceToSun =
+  //           151951543d * TenTo3; // Meters
+  // internal const double PrevDistanceToSun =
+  //           149932211d * TenTo3;
 
-  internal const double DistanceToSun =
-             150427000d * TenTo3; // Meters
-  internal const double PrevDistanceToSun =
-             149932211d * TenTo3;
+  // internal const double DistanceToMoon =
+  //              380000d * TenTo3;
 
-  internal const double DistanceToMoon =
-                380000d * TenTo3;
+  // internal const double DistanceToMercury =
+  //               189671d * TenTo6;
 
-  internal const double DistanceToMercury =
-                 112466d * TenTo6;
+  // internal const double DistanceToVenus =
+  //              176175d * TenTo6;
 
-  internal const double DistanceToVenus =
-                222208d * TenTo6;
+  // internal const double DistanceToMars =
+  //              78846d * TenTo6;
 
-// ===== Get the previous distance on this one.
-  internal const double DistanceToMars =
-                135493d * TenTo6;
+  // internal const double DistanceToJupiter =
+  //              684894d * TenTo6;
 
-  internal const double DistanceToJupiter =
-                664476d * TenTo6;
-
-  internal const double DistanceToSaturn =
-               1437338d * TenTo6;
+  // internal const double DistanceToSaturn =
+  //             1357347d * TenTo6;
 
 
-
-  internal const double EarthOrbitCircumference =
-            DistanceToSun * 2.0d * Math.PI;
+  // internal const double EarthOrbitCircumference =
+  //          DistanceToSun * 2.0d * Math.PI;
 
 
   internal const double EarthRotationAnglePerSecond =
