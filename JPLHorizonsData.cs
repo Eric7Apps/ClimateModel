@@ -3,6 +3,17 @@
 // https://scientificmodels.blogspot.com/
 
 
+// Get ephemeris data from:
+// JPL Horizons:
+// https://ssd.jpl.nasa.gov/horizons.cgi
+
+// Use settings like this:
+// Ephemeris Type: VECTORS
+// Coordinate Origin: Solar System Barycenter (SSB) [500@0]
+// Table Settings: output units=KM-S; CSV format=YES
+// Display/Output: plain text
+
+
 
 using System;
 using System.Text;
@@ -19,23 +30,43 @@ namespace ClimateModel
   class JPLHorizonsData
   {
   private MainForm MForm;
+  private JPLRec[] JPLRecArray;
+  private int JPLRecArrayLast = 0;
+
 
 
   public struct JPLRec
     {
-    // JDTDB, Julian Day Number, Barycentric Dynamical
-    //           Time
-    // https://en.wikipedia.org/wiki/Barycentric_Dynamical_Time
-    // https://en.wikipedia.org/wiki/Barycentric_Coordinate_Time
+    // "Julian day is the continuous count of days
+    // since the beginning of the Julian Period and
+    // is used primarily by astronomers."
+    // "starting from noon Universal time, with
+    // Julian day number 0 assigned to the day
+    // starting at noon on Monday, January 1, 4713 BC,
+    // proleptic Julian calendar (November 24,
+    // 4714 BC, in the proleptic Gregorian calendar)"
+    // "the Julian day number for the day starting
+    // at 12:00 UT on January 1, 2000, was 2 451 545."
 
-    public string Date; // Calendar Date (TDB),
-    public double PositionX; //  X, In kilometers.
+    // This would be at midnight Universal Time
+    // because of the .5.
+    // 2458282.500000000
+
+    public double JulianDayNumber; // JDTDB, Julian Day Number, Barycentric Dynamical Time
+    public ulong CalDate; // Calendar Date (TDB),
+
+    // Original distances in kilometers get converted
+    // to meters when the data file is read.
+    public double PositionX; //  X,
     public double PositionY; //  Y,
     public double PositionZ; //  Z,
-    public double VelocityX; // VX, Kilometers per second.
+    public double VelocityX; // VX,
     public double VelocityY; // VY,
     public double VelocityZ; // VZ,
-    //  LT     One-way down-leg Newtonian light-time (sec)
+    
+    // ===== Check on these values.
+    // ModelConstants.SpeedOfLight 
+    public double LightTime; //  LT     One-way down-leg Newtonian light-time (sec)
     public double Range;   //  RG  Range; distance from coordinate center (km).
     public double RangeRate; //  RR  Range-rate; radial velocity wrt coord. center (km/sec).
     }
@@ -52,6 +83,7 @@ namespace ClimateModel
     {
     MForm = UseForm;
 
+    JPLRecArray = new JPLRec[2];
     }
 
 
@@ -79,7 +111,7 @@ namespace ClimateModel
     {
     bool IsInsideData = false;
     // using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
-    int Lines = 0;
+    // int Lines = 0;
     using( StreamReader SReader = new StreamReader( FileName ))
       {
       while( SReader.Peek() >= 0 )
@@ -109,9 +141,9 @@ namespace ClimateModel
         if( !IsInsideData )
           continue;
 
-        Lines++;
-        if( Lines > 100 )
-          break;
+        // Lines++;
+        // if( Lines > 100 )
+          // break;
 
         // ShowStatus( Line );
 
@@ -125,27 +157,148 @@ namespace ClimateModel
         if( SplitS.Length < 11 )
           continue;
 
-        Rec.Date = SplitS[1].Trim();
+        Rec.JulianDayNumber = GetDoubleValue( SplitS[0].Trim());
+        Rec.CalDate = GetDateTimeULong( SplitS[1].Trim());
         Rec.PositionX = GetDoubleValue( SplitS[2].Trim());
-        Rec.PositionY = GetDoubleValue( SplitS[3].Trim());
-        Rec.PositionZ = GetDoubleValue( SplitS[4].Trim());
-        Rec.VelocityX = GetDoubleValue( SplitS[5].Trim());
-        Rec.VelocityY = GetDoubleValue( SplitS[6].Trim());
-        Rec.VelocityZ = GetDoubleValue( SplitS[7].Trim());
-        //  LT  Light-time  SplitS[8]
-        Rec.Range = GetDoubleValue( SplitS[9].Trim());
-        Rec.RangeRate = GetDoubleValue( SplitS[10].Trim());
 
-        ShowStatus( Rec.Date + " Range: " + Rec.Range.ToString( "N4" ));
+        // Convert them to meters:
+        Rec.PositionX *= 1000.0d;
+
+        Rec.PositionY = GetDoubleValue( SplitS[3].Trim());
+        Rec.PositionY *= 1000.0d;
+
+        Rec.PositionZ = GetDoubleValue( SplitS[4].Trim());
+        Rec.PositionZ *= 1000.0d;
+
+        Rec.VelocityX = GetDoubleValue( SplitS[5].Trim());
+        Rec.VelocityX *= 1000.0d;
+
+        Rec.VelocityY = GetDoubleValue( SplitS[6].Trim());
+        Rec.VelocityY *= 1000.0d;
+
+        Rec.VelocityZ = GetDoubleValue( SplitS[7].Trim());
+        Rec.VelocityZ *= 1000.0d;
+
+        Rec.LightTime = GetDoubleValue( SplitS[8].Trim());
+
+        Rec.Range = GetDoubleValue( SplitS[9].Trim());
+        Rec.Range *= 1000.0d;
+
+        Rec.RangeRate = GetDoubleValue( SplitS[10].Trim());
+        Rec.RangeRate *= 1000.0d;
+
+        AddJPLRec( Rec );
+
+        // ShowStatus( Rec.Date + " Range: " + Rec.Range.ToString( "N4" ));
         }
       }
 
+    ShowStatus( " " );
+    ShowStatus( "Loaded file:" );
+    ShowStatus( FileName );
+    ShowStatus( "Records: " + JPLRecArrayLast.ToString( "N0" ));
     }
     catch( Exception Except )
       {
       ShowStatus( "Could not read the file: \r\n" + FileName );
       ShowStatus( Except.Message );
       }
+    }
+
+
+
+  private ulong GetDateTimeULong( string DateS )
+    {
+    // ShowStatus( " " );
+    // ShowStatus( "DateS: " + DateS );
+    // A.D. 2018-Jun-13 00:00:00.0000
+
+    DateS = DateS.Replace( "A.D.", "" ).Trim();
+    string[] SplitS = DateS.Split( new Char[] { ' ' } );
+
+    if( SplitS.Length < 2 )
+      return 0;
+
+    string DatePart = SplitS[0].Trim();
+    string TimePart = SplitS[1].Trim();
+
+    // ShowStatus( "DatePart: " + DatePart );
+    // ShowStatus( "TimePart: " + TimePart );
+
+    // DatePart: 2018-Jun-13
+
+    SplitS = DatePart.Split( new Char[] { '-' } );
+
+    int Year = GetIntegerValue( SplitS[0] );
+    int Month = MonthNameToInt( SplitS[1] );
+    int Day = GetIntegerValue( SplitS[2] );
+
+    SplitS = TimePart.Split( new Char[] { ':' } );
+    int Hour = GetIntegerValue( SplitS[0] );
+    int Minute = GetIntegerValue( SplitS[1] );
+    double SecondsD = GetDoubleValue( SplitS[2] );
+
+    int Second = (int)Math.Truncate( SecondsD );
+    SecondsD -= Second;
+    SecondsD = SecondsD * 1000;
+    int Millisecond = (int)Math.Truncate( SecondsD );
+
+    ECTime RecTime = new ECTime();
+    RecTime.SetUTCTime( Year,
+                        Month,
+                        Day,
+                        Hour,
+                        Minute,
+                        Second,
+                        Millisecond );
+
+    // ShowStatus( RecTime.ToCrudeString());
+
+    // SetFromIndex( ulong Index )
+    return RecTime.GetIndex();
+    }
+
+
+
+  private int MonthNameToInt( string MonthName )
+    {
+    if( MonthName == "Jan" )
+      return 1;
+
+    if( MonthName == "Feb" )
+      return 2;
+
+    if( MonthName == "Mar" )
+      return 3;
+
+    if( MonthName == "Apr" )
+      return 4;
+
+    if( MonthName == "May" )
+      return 5;
+
+    if( MonthName == "Jun" )
+      return 6;
+
+    if( MonthName == "Jul" )
+      return 7;
+
+    if( MonthName == "Aug" )
+      return 8;
+
+    if( MonthName == "Sep" )
+      return 9;
+
+    if( MonthName == "Oct" )
+      return 10;
+
+    if( MonthName == "Nov" )
+      return 11;
+
+    if( MonthName == "Dec" )
+      return 12;
+
+    return 0;
     }
 
 
@@ -164,6 +317,69 @@ namespace ClimateModel
       ShowStatus( Except.Message );
       return 0;
       }
+    }
+
+
+
+  private int GetIntegerValue( string ValueS )
+    {
+    try
+    {
+    return Int32.Parse( ValueS );
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in GetIntegerValue():" );
+      ShowStatus( Except.Message );
+      return 0;
+      }
+    }
+
+
+
+  internal void AddJPLRec( JPLRec ToAdd )
+    {
+    JPLRecArray[JPLRecArrayLast] = ToAdd;
+    JPLRecArrayLast++;
+    if( JPLRecArrayLast >= JPLRecArray.Length )
+      {
+      Array.Resize( ref JPLRecArray, JPLRecArray.Length + 1024 );
+      }
+    }
+
+
+
+  internal JPLRec GetNearestRecByDateTime( ulong ToMatch )
+    {
+    if( JPLRecArrayLast < 1 )
+      {
+      JPLRec RecNone = new JPLRec();
+      RecNone.CalDate = 0;
+      return RecNone;
+      }
+
+    ECTime BigDate = new ECTime();
+    BigDate.SetToYear2099();
+    // Set NearestValue to be bigger than any
+    // reasonable value.
+    long NearestValue = (long)BigDate.GetIndex();
+
+    int NearestIndex = 0;
+    for( int Count = 0; Count < JPLRecArrayLast; Count++ )
+      {
+      JPLRec Rec = JPLRecArray[Count];
+      if( Rec.CalDate > ToMatch )
+        continue;
+
+      long Diff = (long)ToMatch - (long)Rec.CalDate;
+      if( Diff < NearestValue )
+        {
+        NearestValue = Diff;
+        NearestIndex = Count;
+        }
+      }
+
+    return JPLRecArray[NearestIndex];
     }
 
 
