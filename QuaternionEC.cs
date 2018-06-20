@@ -1,10 +1,7 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
-
-// Quaternion:
-// https://en.wikipedia.org/wiki/Quaternion
 
 // Quaternions and spatial rotation:
 // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
@@ -13,9 +10,6 @@
 using System;
 using System.Text;
 
-// For testing:
-using System.Windows.Media.Media3D;
-
 
 
 namespace ClimateModel
@@ -23,8 +17,6 @@ namespace ClimateModel
 
   static class QuaternionEC
   {
-  // The original ijk are sometimes called xyz (the
-  // vector part) and the scalar part is w.
   // a + bi + cj + dk
   // w + bx + cy + dz
 
@@ -127,7 +119,6 @@ namespace ClimateModel
   internal static bool DoubleIsAlmostEqual( double A, double B, double SmallNumber )
     {
     // How small can this be?
-    // How close are they?
 
     if( A + SmallNumber < B )
       return false;
@@ -161,9 +152,6 @@ namespace ClimateModel
 
   internal static void Conjugate( ref QuaternionRec Result, ref QuaternionRec In )
     {
-    // It's like the conjugate of a complex number
-    // a + ib is a - ib.
-
     Result.X = -In.X;
     Result.Y = -In.Y;
     Result.Z = -In.Z;
@@ -178,13 +166,10 @@ namespace ClimateModel
     // QX = 1, so X is the multiplicative inverse
     // of Q.  So X = 1 / Q, or Q^(-1).
 
-    ///////////////////////
-    // Test:
-    QuaternionRec TestQ = new QuaternionRec();
-    Copy( ref TestQ, ref In );
-    ///////////////////
-
     double NSquared = NormSquared( ref In );
+    if( NSquared < 0.0000000000001 )
+      throw( new Exception( "NSquared is too small in QuaternionEC.Inverse()." ));
+
     double InverseNS = 1.0d / NSquared;
 
     // The negative parts are to make it the
@@ -195,36 +180,10 @@ namespace ClimateModel
     Result.Z = -In.Z * InverseNS;
 
     Result.W = In.W * InverseNS;
-
-    ///////////////
-    // Test:
-    double SmallNumber = 0.00000000000001;
-    QuaternionRec Test1 = new QuaternionRec();
-    SetOne( ref Test1 );
-
-    QuaternionRec TestResult = new QuaternionRec();
-    QuaternionRec TestX = new QuaternionRec();
-
-    Copy( ref TestX, ref Result );
-
-     // From the definition of "inverse", it should
-    // equal 1.
-    Multiply( ref TestResult, ref TestX, ref TestQ );
-    if( !IsAlmostEqual(  ref Test1, ref TestResult, SmallNumber ))
-      throw( new Exception( "Invert doesn't match its definition." ));
-
-   // Is the left inverse the same as the right
-   // inverse?  (A theorem from Group theory.)
-   Multiply( ref TestResult, ref TestQ, ref TestX );
-    if( !IsAlmostEqual(  ref Test1, ref TestResult, SmallNumber ))
-      throw( new Exception( "Second test: Invert doesn't match its definition." ));
-
     }
 
 
 
-
-  // https://en.wikipedia.org/wiki/Cross_product
 
   internal static void CrossProduct( ref QuaternionRec Result,
                                      ref QuaternionRec Left,
@@ -347,41 +306,6 @@ namespace ClimateModel
     Result.Y = (-L.X * R.Z) +  (L.Y * R.W) +  (L.Z * R.X) +  (L.W * R.Y);
     Result.Z =  (L.X * R.Y) + (-L.Y * R.X) +  (L.Z * R.W) +  (L.W * R.Z);
     Result.W = (-L.X * R.X) + (-L.Y * R.Y) + (-L.Z * R.Z) +  (L.W * R.W);
-
-    ///////////////////////
-    // Test:
-    Quaternion ResultTest = new Quaternion();
-    Quaternion LeftTest = new Quaternion();
-    Quaternion RightTest = new Quaternion();
-
-    LeftTest.X = L.X;
-    LeftTest.Y = L.Y;
-    LeftTest.Z = L.Z;
-    LeftTest.W = L.W;
-
-    RightTest.X = R.X;
-    RightTest.Y = R.Y;
-    RightTest.Z = R.Z;
-    RightTest.W = R.W;
-
-    ResultTest = Quaternion.Multiply( LeftTest, RightTest );
-
-    // How small can this be?
-    double SmallNumber = 0.00000000001d;
-
-    if( !DoubleIsAlmostEqual( ResultTest.X, Result.X, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.X != Result.X." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Y, Result.Y, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.Y != Result.Y." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Z, Result.Z, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.Z != Result.Z." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.W != Result.W." ));
-
-    /////////////////////////
     }
 
 
@@ -402,41 +326,6 @@ namespace ClimateModel
     Result.Y = (-L.X * R.Z) +  (L.Y * R.W) +  (L.Z * R.X);
     Result.Z =  (L.X * R.Y) + (-L.Y * R.X) +  (L.Z * R.W);
     Result.W = (-L.X * R.X) + (-L.Y * R.Y) + (-L.Z * R.Z);
-
-    ///////////////////////
-    // Test:
-    Quaternion ResultTest = new Quaternion();
-    Quaternion LeftTest = new Quaternion();
-    Quaternion RightTest = new Quaternion();
-
-    LeftTest.X = L.X;
-    LeftTest.Y = L.Y;
-    LeftTest.Z = L.Z;
-    LeftTest.W = 0; // L.W;
-
-    RightTest.X = R.X;
-    RightTest.Y = R.Y;
-    RightTest.Z = R.Z;
-    RightTest.W = R.W;
-
-    ResultTest = Quaternion.Multiply( LeftTest, RightTest );
-
-    // How small can this be?
-    double SmallNumber = 0.001d;
-
-    if( !DoubleIsAlmostEqual( ResultTest.X, Result.X, SmallNumber ))
-      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.X != Result.X." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Y, Result.Y, SmallNumber ))
-      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.Y != Result.Y." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Z, Result.Z, SmallNumber ))
-      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.Z != Result.Z." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
-      throw( new Exception( "MultiplyWithLeftVector3: ResultTest.W != Result.W." ));
-
-    /////////////////////////
     }
 
 
@@ -455,41 +344,6 @@ namespace ClimateModel
 
     // It doesn't need this calculation:
     // Result.W = (-L.X * R.X) + (-L.Y * R.Y) + (-L.Z * R.Z) +  (L.W * R.W);
-
-    ///////////////////////
-    // Test:
-    Quaternion ResultTest = new Quaternion();
-    Quaternion LeftTest = new Quaternion();
-    Quaternion RightTest = new Quaternion();
-
-    LeftTest.X = L.X;
-    LeftTest.Y = L.Y;
-    LeftTest.Z = L.Z;
-    LeftTest.W = L.W;
-
-    RightTest.X = R.X;
-    RightTest.Y = R.Y;
-    RightTest.Z = R.Z;
-    RightTest.W = R.W;
-
-    ResultTest = Quaternion.Multiply( LeftTest, RightTest );
-
-    // How small can this be?
-    double SmallNumber = 0.00000000001d;
-
-    if( !DoubleIsAlmostEqual( ResultTest.X, Result.X, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.X != Result.X." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Y, Result.Y, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.Y != Result.Y." ));
-
-    if( !DoubleIsAlmostEqual( ResultTest.Z, Result.Z, SmallNumber ))
-      throw( new Exception( "Multiply: ResultTest.Z != Result.Z." ));
-
-    // if( !DoubleIsAlmostEqual( ResultTest.W, Result.W, SmallNumber ))
-      // throw( new Exception( "Multiply: ResultTest.W != Result.W." ));
-
-    /////////////////////////
     }
 
 
@@ -553,30 +407,6 @@ namespace ClimateModel
     MultiplyWithResultVector3( ref ResultPoint, ref RotationQ, ref MiddlePoint );
     }
 
-
-
-  internal static void TestBasics()
-    {
-    QuaternionRec Result = new QuaternionRec();
-    QuaternionRec L = new QuaternionRec();
-    QuaternionRec R = new QuaternionRec();
-
-    // Round off?
-    L.X = 11.123456789;
-    L.Y = 2.9876543;
-    L.Z = 3.123987654321;
-    L.W = 4.314159;
-
-    R.X = 5.271;
-    R.Y = 6.9702591234;
-    R.Z = 7.1234587654321;
-    R.W = 8.1726364567;
-
-    Normalize( ref Result, ref R );
-    Multiply( ref Result, ref L, ref R );
-    Conjugate( ref Result, ref R );
-    Inverse( ref Result, ref R );
-    }
 
 
 
