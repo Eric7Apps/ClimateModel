@@ -1,10 +1,9 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 using System;
-// using System.Collections.Generic;
 using System.Text;
 
 
