@@ -1,6 +1,6 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 using System;
@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
-using System.Threading.Tasks;
+// using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
@@ -85,7 +85,8 @@ namespace ClimateModel
     ViewPort.Children.Add( Scene.GetMainModelVisual3D() );
 
     ViewPort.Camera = Scene.GetCamera();
-    Scene.RefFrame.MakeNewGeometryModels();
+    // Scene.RefFrame.MakeNewGeometryModels();
+    Scene.SolarS.MakeNewGeometryModels();
     }
 
 
@@ -200,8 +201,6 @@ namespace ClimateModel
     {
     try
     {
-    // MessageBox.Show( "Test.", MainForm.MessageBoxTitle, MessageBoxButtons.OK );
-
 // A  The A key.
 // Add The add key.
 // D0 The 0 key.
@@ -209,7 +208,6 @@ namespace ClimateModel
 // Delete The DEL key.
 // End The END key.
 // Enter The ENTER key.
-// F1 The F1 key.
 // Home The HOME key.
 // Insert The INS key.
 // NumPad2 The 2 key on the numeric keypad.
@@ -259,10 +257,16 @@ namespace ClimateModel
 
       if( e.KeyCode == Keys.E )
         {
-        Scene.SetCameraToOriginal();
+        Scene.MoveToEarthView();
         return;
         }
 
+      if( e.KeyCode == Keys.Z )
+        {
+        Scene.SetEarthPositionToZero();
+        Scene.MoveToEarthView();
+        return;
+        }
 
       if( e.KeyCode == Keys.Left )
         {
@@ -325,6 +329,12 @@ namespace ClimateModel
       // MessageBox.Show( "Escape.", MainForm.MessageBoxTitle, MessageBoxButtons.OK );
       }
 
+    if( e.KeyCode == Keys.F1 )
+      {
+      MessageBox.Show( "Control E gets back to Earth.", MainForm.MessageBoxTitle, MessageBoxButtons.OK );
+      return;
+      }
+
     if( e.KeyCode == Keys.PageUp )
       {
       // MessageBox.Show( "Page up.", MainForm.MessageBoxTitle, MessageBoxButtons.OK );
@@ -362,6 +372,8 @@ namespace ClimateModel
       MessageBox.Show( "Exception in ThreeDForm.KeyDown: " + Except.Message, MainForm.MessageBoxTitle, MessageBoxButtons.OK );
       }
     }
+
+
 
 
   }
