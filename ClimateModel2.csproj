@@ -62,6 +62,7 @@ https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="EarthSurfaceLine.cs" />
     <Compile Include="EarthLine.cs" />
     <Compile Include="JPLHorizonsData.cs" />
     <Compile Include="ConfigureFile.cs" />
