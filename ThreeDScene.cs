@@ -22,7 +22,7 @@ namespace ClimateModel
   private PerspectiveCamera PCamera = new PerspectiveCamera();
   private Model3DGroup Main3DGroup = new Model3DGroup();
   private ModelVisual3D MainModelVisual3D = new ModelVisual3D();
-  internal ReferenceFrame RefFrame;
+  // internal ReferenceFrame RefFrame;
   internal SolarSystem SolarS;
 
 
@@ -39,11 +39,14 @@ namespace ClimateModel
     {
     MForm = UseForm;
 
-    RefFrame = new ReferenceFrame( MForm, Main3DGroup );
+    // RefFrame = new ReferenceFrame( MForm, Main3DGroup );
     SolarS = new SolarSystem( MForm, Main3DGroup );
 
     SetupCamera();
     MainModelVisual3D.Content = Main3DGroup;
+
+    MoveToEarthView();
+
     }
     catch( Exception Except )
       {
@@ -449,14 +452,40 @@ namespace ClimateModel
 
   internal void RotateView()
     {
-    RefFrame.RotateView();
+    SolarS.RotateView();
     }
 
 
 
   internal void DoTimeStep()
     {
-    RefFrame.DoTimeStep();
+    SolarS.DoTimeStep();
+    }
+
+
+
+  internal void MoveToEarthView()
+    {
+    Vector3.Vector Pos = SolarS.GetEarthScaledPosition();
+
+    SetCameraTo( Pos.X,
+                 Pos.Y,
+                 Pos.Z,
+                     -1,
+                     0,
+                     0,
+                     0,
+                     0,
+                     1 );
+
+    MoveForwardBack( -30.0 );
+    }
+
+
+
+  internal void SetEarthPositionToZero()
+    {
+    SolarS.SetEarthPositionToZero();
     }
 
 
