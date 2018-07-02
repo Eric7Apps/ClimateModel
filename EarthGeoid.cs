@@ -128,7 +128,8 @@ namespace ClimateModel
   private void AddSurfaceVertex(
                       Vector3.Vector RefPosition,
                       Vector3.Vector RefNormal,
-                      EarthSlice.LatLongPosition Pos )
+                      EarthSlice.LatLongPosition Pos,
+                      double TextureY )
     {
     // Surface.Positions.Count
     // Surface.Positions.Items[Index];
@@ -157,7 +158,7 @@ namespace ClimateModel
     // bounding box for longitude.  Otherwise it will
     // scale the texture image in ways you don't want.
 
-    Point TexturePoint = new Point( Pos.TextureX, Pos.TextureY );
+    Point TexturePoint = new Point( Pos.TextureX, TextureY );
     Surface.TextureCoordinates.Add( TexturePoint );
 
     Vector3D SurfaceNormal = new Vector3D( RefNormal.X, RefNormal.Y, RefNormal.Z );
@@ -256,6 +257,12 @@ namespace ClimateModel
     Vector3.Vector NormalNorthPole =
               EarthSliceArray[0].GetSurfaceNormal( 0, 0 );
 
+    double TextureY = EarthSliceArray[0].GetTextureY();
+ 
+    AddSurfaceVertex( PositionNorthPole,
+                      NormalNorthPole,
+                      PosNorthPole,
+                      TextureY );
 
     ApproxLatitude = -90.0;
     LastGraphicsIndex =
@@ -275,13 +282,12 @@ namespace ClimateModel
     Vector3.Vector NormalSouthPole =
               EarthSliceArray[EarthSlice.VertexRowsLast - 1].GetSurfaceNormal( 0, 0 );
 
-    AddSurfaceVertex( PositionNorthPole,
-                      NormalNorthPole,
-                      PosNorthPole );
+    TextureY = EarthSliceArray[EarthSlice.VertexRowsLast - 1].GetTextureY();
 
     AddSurfaceVertex( PositionSouthPole,
                       NormalSouthPole,
-                      PosSouthPole );
+                      PosSouthPole,
+                      TextureY );
 
     double RowLatitude = 90;
     int HowMany = 4;
@@ -697,9 +703,14 @@ namespace ClimateModel
       Vector3.Vector RefNormal =
               EarthSliceArray[RowIndex].GetSurfaceNormal( Count, 0 );
 
+
+      double TextureY = EarthSliceArray[RowIndex].
+                                       GetTextureY();
+
       AddSurfaceVertex( RefPosition,
                         RefNormal,
-                        Pos );
+                        Pos,
+                        TextureY );
 
       }
 
