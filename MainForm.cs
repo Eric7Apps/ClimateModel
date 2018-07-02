@@ -24,7 +24,7 @@ namespace ClimateModel
   // public partial class MainForm : Form
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "6/13/2018";
+  internal const string VersionDate = "7/2/2018";
   internal const int VersionNumber = 09; // 0.9
   private System.Threading.Mutex SingleInstanceMutex = null;
   private bool IsSingleInstance = false;
@@ -56,9 +56,10 @@ namespace ClimateModel
     // DrawBitmap DrawBMap = new DrawBitmap( this );
     // DrawBMap.MakeImageFile( "C:\\Eric\\ClimateModel\\bin\\Release\\Earth.jpg" );
 
-    JPLHorizonsData JPLData = new JPLHorizonsData( this );
-    string FileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLEarth.txt";
-    JPLData.ReadFromTextFile( FileName );
+    // JPLHorizonsData JPLData = new JPLHorizonsData( this );
+    // string FileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSpaceStation.txt";
+    // string FileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSun.txt";
+    // JPLData.ReadFromTextFile( FileName );
     }
 
 
