@@ -19,18 +19,13 @@ namespace ClimateModel
   private Model3DGroup Main3DGroup;
   private SpaceObject[] SpaceObjectArray;
   private int SpaceObjectArrayLast = 0;
-  // private double RadiusScale = 300.0;
+  private const double RadiusScale = 300.0;
   private PlanetSphere Sun;
-  // private PlanetSphere Mercury;
-  // private PlanetSphere Venus;
   private EarthGeoid Earth;
-  // private PlanetSphere Moon;
-  // private PlanetSphere Mars;
-  // private PlanetSphere Jupiter;
-  // private PlanetSphere Saturn;
-  private Vector3.Vector Barycenter;
-  private ECTime SunTime; // Local time.
-  private ECTime SpringTime; // Spring Equinox.
+  private PlanetSphere Moon;
+
+  // private ECTime SunTime; // Local time.
+  // private ECTime SpringTime; // Spring Equinox.
 
 
 
@@ -47,14 +42,12 @@ namespace ClimateModel
     Main3DGroup = Use3DGroup;
 
     // The local time for the sun.
-    SunTime = new ECTime();
-    SpringTime = new ECTime();
-    InitializeTimes();
+    // SunTime = new ECTime();
+    // SpringTime = new ECTime();
+    // InitializeTimes();
 
     SpaceObjectArray = new SpaceObject[2];
     AddInitialSpaceObjects();
-
-    SetBarycenter();
 
     // ECTime RightNow = new ECTime();
     // RightNow.SetToNow();
@@ -63,7 +56,7 @@ namespace ClimateModel
 
 
 
-
+/*
   private void InitializeTimes()
     {
     SunTime.SetToNow();
@@ -81,26 +74,9 @@ namespace ClimateModel
                             0 );
 
     }
+*/
 
 
-
-  private void SetBarycenter()
-    {
-    double Distance = ModelConstants.DistanceToSun;
-
-    double RightAscension =
-       NumbersEC.RightAscensionToRadians( 4, 58, 20 );
-    double Declination =
-       NumbersEC.DegreesMinutesToRadians( 22, 40, 49 );
-
-    Barycenter.X = Distance * (Math.Cos( Declination ) * Math.Cos( RightAscension ));
-    Barycenter.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
-    Barycenter.Z = Distance * Math.Sin( Declination );
-
-    Sun.Position.X = Barycenter.X;
-    Sun.Position.Y = Barycenter.Y;
-    Sun.Position.Z = Barycenter.Z;
-    }
 
 
 
@@ -117,31 +93,7 @@ namespace ClimateModel
 
     // One sidereal year.
     // Earth orbit in days: 365.256
-    double EarthOrbitInHours = 365.256d * 24.0d;
-    double EarthOrbitInMinutes = EarthOrbitInHours * 60.0d;
-    double EarthOrbitInSeconds = EarthOrbitInMinutes * 60.0d;
-    double PartOfOrbit = TimeDiffSeconds / EarthOrbitInSeconds;
-    PartOfOrbitRadians = 2 * Math.PI * PartOfOrbit;
-    // If Earth was halfway around this would be
-    // 2 * Math.PI * 0.5.
 
-    // This would be in the ecliptic plane.
-    // Earth.Position.X = Barycenter.X +
-    //    (Distance * Math.Cos( PartOfOrbit ));
-
-
-    // Barycenter.Y = Distance * (Math.Cos( Declination ) * Math.Sin( RightAscension ));
-    // Barycenter.Z = Distance * Math.Sin( Declination );
-
-
-    // ShowStatus( " " );
-    // ShowStatus( "Sun.Position.X: " + Sun.Position.X.ToString( "N0" ));
-    // ShowStatus( "Sun.Position.Y: " + Sun.Position.Y.ToString( "N0" ));
-    // ShowStatus( "Sun.Position.Z: " + Sun.Position.Z.ToString( "N0" ));
-    // ShowStatus( " " );
-
-
-    //
     // Earth's orbit:
     //                      b  m  t
     // Aphelion:          152100000000
@@ -154,15 +106,105 @@ namespace ClimateModel
 
   private void AddInitialSpaceObjects()
     {
-    AddSun();
-    AddEarth();
+    try
+    {
+    // Sun:
+    string JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSun.txt";
+    Sun = new PlanetSphere( MForm, "Sun", true, JPLFileName );
+    Sun.Radius = 695700 * ModelConstants.TenTo3;
+    Sun.Mass = ModelConstants.MassOfSun;
+    Sun.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\sun.jpg";
+    AddSpaceObject( Sun );
 
-    // AddMercury();
-    // AddVenus();
-    // AddMoon();
-    // AddMars();
-    // AddJupiter();
-    // AddSaturn();
+    // Earth:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLEarth.txt";
+    Earth = new EarthGeoid( MForm, "Earth", JPLFileName );
+    // Shift the time of day:
+    // If I make this 3 then the Earth rotates to
+    // the east by 3 hours.  (The sun moves to the
+    // west three hours toward sunset.)
+    Earth.LongitudeHoursRadians = 0;
+    Earth.Mass = ModelConstants.MassOfEarth;
+    Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg";
+    AddSpaceObject( Earth );
+    // Earth orbit in days: 365.256
+    // const double VelocityPerDay =
+    //   ModelConstants.EarthOrbitCircumference / 365.256d;
+    // const double VelocityPerHour =
+    //                    VelocityPerDay / 24d;
+
+    // Moon:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMoon.txt";
+    Moon = new PlanetSphere( MForm, "Moon", false, JPLFileName );
+    // Radius: About 1,737.1 kilometers.
+    Moon.Radius = 1737100;
+    Moon.Mass = ModelConstants.MassOfMoon;
+    Moon.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\moon.jpg";
+    AddSpaceObject( Moon );
+
+
+    // Mercury:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMercury.txt";
+    PlanetSphere Mercury = new PlanetSphere(
+              MForm, "Mercury", false, JPLFileName );
+
+    Mercury.Radius = 2440000d * RadiusScale;
+    Mercury.Mass = ModelConstants.MassOfMercury;
+    Mercury.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\Mercury.jpg";
+    AddSpaceObject( Mercury );
+
+    // Venus:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLVenus.txt";
+    PlanetSphere Venus = new PlanetSphere(
+                MForm, "Venus", false, JPLFileName );
+
+    Venus.Radius = 6051000 * RadiusScale; // 6,051 km
+    Venus.Mass = ModelConstants.MassOfVenus;
+    Venus.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\Venus.jpg";
+    AddSpaceObject( Venus );
+
+    // Mars:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMars.txt";
+    PlanetSphere Mars = new PlanetSphere(
+                 MForm, "Mars", false, JPLFileName );
+
+    Mars.Radius = 3396000 * RadiusScale;
+    Mars.Mass = ModelConstants.MassOfMars;
+    Mars.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\mars.jpg";
+    AddSpaceObject( Mars );
+
+
+    // Jupiter:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLJupiter.txt";
+    PlanetSphere Jupiter = new PlanetSphere(
+              MForm, "Jupiter", false, JPLFileName );
+
+    //                m  t
+    Jupiter.Radius = 69911000d * RadiusScale; // 69,911 km
+    Jupiter.Mass = ModelConstants.MassOfJupiter;
+    Jupiter.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\Jupiter.jpg";
+    AddSpaceObject( Jupiter );
+
+    // Saturn:
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSaturn.txt";
+    PlanetSphere Saturn = new PlanetSphere(
+                MForm, "Saturn", false, JPLFileName );
+
+    //               m  t
+    Saturn.Radius = 58232000d * RadiusScale; // 58,232 km
+    Saturn.Mass = ModelConstants.MassOfSaturn;
+    Saturn.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\Saturn.jpg";
+    AddSpaceObject( Saturn );
+
+
+    ECTime RightNow = new ECTime();
+    RightNow.SetToNow();
+    SetToJPLTimePosition( RightNow.GetIndex() );
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in SolarSystem.AddMercury(): " + Except.Message );
+      }
     }
 
 
@@ -189,95 +231,21 @@ namespace ClimateModel
 
 
 
-  private void AddSun()
+  internal void SetToJPLTimePosition( ulong TimeIndex )
     {
-    // https://theskylive.com/sun-info
-    // https://en.wikipedia.org/wiki/Sun
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObjectArray[Count].
+                 SetToNearestJPLPosition( TimeIndex );
 
-    Sun = new PlanetSphere( MForm, true );
-
-    Sun.Radius = 695700 * ModelConstants.TenTo3;
-    Sun.Mass = ModelConstants.MassOfSun;
-
-    Sun.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\sun.jpg";
-
-    // Sun.Velocity.X = 0;
-    // Sun.Velocity.Y = 0;
-    // Sun.Velocity.Z = 0;
-
-    AddSpaceObject( Sun );
-    }
-
-
-
-  private void AddEarth()
-    {
-    // https://en.wikipedia.org/wiki/Earth
-
-    // Earth is an EarthGeoid, not a PlanetSphere.
-    Earth = new EarthGeoid( MForm );
-
-    // Shift the time of day:
-    // If I make this 3 then the Earth rotates to
-    // the east by 3 hours.  (The sun moves to the
-    // west three hours toward sunset.)
-
-    Earth.LongitudeHoursRadians = 0;
-
-    // Earth.Position.X = 0;
-    // Earth.Position.Y = 0;
-    // Earth.Position.Z = 0;
-
-    Earth.Mass = ModelConstants.MassOfEarth;
-
-    /*
-    // Distance in Meters.
-    // Earth orbit in days: 365.256
-    const double VelocityPerDay =
-       ModelConstants.EarthOrbitCircumference / 365.256d;
-    const double VelocityPerHour =
-                        VelocityPerDay / 24d;
-    const double VelocityPerSecond =
-              VelocityPerHour / (60.0d * 60.0d);
-
-    ShowStatus( " " );
-    ShowStatus( "Earth Velocity meters per hour: " + VelocityPerHour.ToString( "N0" ));
-    ShowStatus( "Earth Velocity meters per second: " + VelocityPerSecond.ToString( "N0" ));
-    ShowStatus( " " );
-
-    // Make it so the Earth is moving in the opposite
-    // direction and the sun's velocity is zero in
-    // this coordinate system.  (To start with.)
-    Earth.Velocity.X = -Sun.Velocity.X;
-    Earth.Velocity.Y = -Sun.Velocity.Y;
-    Earth.Velocity.Z = -Sun.Velocity.Z;
-    Sun.Velocity.X = 0;
-    Sun.Velocity.Y = 0;
-    Sun.Velocity.Z = 0;
-
-    // Make a better estimate of velocity.
-    Vector3.Normalize( ref Earth.Velocity, Earth.Velocity );
-    Vector3.MultiplyWithScalar( ref Earth.Velocity, VelocityPerSecond );
-
-    ShowStatus( "Earth Velocity meters per second:" );
-    ShowStatus( "Earth Velocity.X: " + Earth.Velocity.X.ToString( "N0" ));
-    ShowStatus( "Earth Velocity.Y: " + Earth.Velocity.Y.ToString( "N0" ));
-    ShowStatus( "Earth Velocity.Z: " + Earth.Velocity.Z.ToString( "N0" ));
-    ShowStatus( " " );
-
-    // Velocity.Z is at a maximum at the spring
-    // equinox.
-    */
-
-    Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg";
-    AddSpaceObject( Earth );
+      }
     }
 
 
 
   internal void MakeNewGeometryModels()
     {
-    // Main3DGroup.Children.Clear();
+    Main3DGroup.Children.Clear();
 
     for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
       {
@@ -289,15 +257,15 @@ namespace ClimateModel
       Main3DGroup.Children.Add( GeoMod );
       }
 
-    // SetupAmbientLight();
-    // SetupSunlight();
+    SetupAmbientLight();
+    SetupSunlight();
     }
 
 
 
   internal void ResetGeometryModels()
     {
-    // Main3DGroup.Children.Clear();
+    Main3DGroup.Children.Clear();
 
     for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
       {
@@ -308,9 +276,195 @@ namespace ClimateModel
       Main3DGroup.Children.Add( GeoMod );
       }
 
-    // SetupAmbientLight();
-    // SetupSunlight();
+    SetupAmbientLight();
+    SetupSunlight();
     }
+
+
+
+  private void SetupSunlight()
+    {
+    // Lights are Model3D objects.
+    // System.Windows.Media.Media3D.Model3D
+    //   System.Windows.Media.Media3D.Light
+
+    // double OuterDistance = 1.5;
+
+    double X = Sun.Position.X * ModelConstants.ThreeDSizeScale;
+    double Y = Sun.Position.Y * ModelConstants.ThreeDSizeScale;
+    double Z = Sun.Position.Z * ModelConstants.ThreeDSizeScale;
+    // double RadiusScaled = Sun.Radius * ModelConstants.ThreeDSizeScale;
+
+    SetupPointLight( X,
+                     Y,
+                     Z );
+
+    }
+
+
+
+  private void SetupPointLight( double X,
+                                double Y,
+                                double Z )
+    {
+    PointLight PLight1 = new PointLight();
+    PLight1.Color = System.Windows.Media.Colors.White;
+
+    Point3D Location = new  Point3D( X, Y, Z );
+    PLight1.Position = Location;
+    PLight1.Range = 100000000.0;
+
+    // Attenuation with distance D is like:
+    // Attenuation = C + L*D + Q*D^2
+    PLight1.ConstantAttenuation = 1;
+    // PLight.LinearAttenuation = 1;
+    // PLight.QuadraticAttenuation = 1;
+
+    Main3DGroup.Children.Add( PLight1 );
+    }
+
+
+
+  private void SetupAmbientLight()
+    {
+    byte RGB = 0x0F;
+    SetupAmbientLightColors( RGB, RGB, RGB );
+    }
+
+
+
+  private void SetupAmbientLightColors( byte Red,
+                                        byte Green,
+                                        byte Blue )
+    {
+    try
+    {
+    AmbientLight AmbiLight = new AmbientLight();
+    // AmbiLight.Color = System.Windows.Media.Colors.Gray; // AliceBlue
+
+    Color AmbiColor = new Color();
+    AmbiColor.R = Red;
+    AmbiColor.G = Green;
+    AmbiColor.B = Blue;
+
+    AmbiLight.Color = AmbiColor;
+
+    Main3DGroup.Children.Add( AmbiLight );
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in ThreeDScene.SetupAmbientLight(): " + Except.Message );
+      }
+    }
+
+
+
+
+  internal void RotateView()
+    {
+    double AddHours = NumbersEC.DegreesToRadians( 0.5 * (360.0d / 24.0d) );
+    Earth.LongitudeHoursRadians = Earth.LongitudeHoursRadians + AddHours;
+    Earth.MakeNewGeometryModel();
+    ResetGeometryModels();
+    }
+
+
+
+
+  internal void DoTimeStep()
+    {
+    const double TimeDelta = 60 * 10; // seconds.
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObject SpaceObj = SpaceObjectArray[Count];
+      SpaceObj.SetNextPositionFromVelocity(
+                                    TimeDelta );
+      }
+
+    Vector3.Vector AccelVector = new Vector3.Vector();
+    for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
+      {
+      SpaceObject SpaceObj = SpaceObjectArray[Count];
+      Vector3.SetZero( ref SpaceObj.Acceleration );
+
+      for( int Count2 = 0; Count2 < SpaceObjectArrayLast; Count2++ )
+        {
+        SpaceObject FarAwaySpaceObj = SpaceObjectArray[Count2];
+        if( FarAwaySpaceObj.Mass < 1 )
+          throw( new Exception( "The space object has no mass." ));
+
+        Vector3.Copy( ref AccelVector, ref FarAwaySpaceObj.Position );
+        Vector3.Subtract( ref AccelVector, ref SpaceObj.Position );
+
+        double Distance = Vector3.Norm( ref AccelVector );
+
+        // Check if it's the same planet at zero
+        // distance.
+        if( Distance < 1.0 )
+          continue;
+
+        double Acceleration =
+             (ModelConstants.GravitationConstant *
+             FarAwaySpaceObj.Mass) /
+             (Distance * Distance);
+
+        Vector3.Normalize( ref AccelVector, AccelVector );
+        Vector3.MultiplyWithScalar( ref AccelVector, Acceleration );
+        Vector3.Add( ref SpaceObj.Acceleration, ref AccelVector );
+        }
+
+      // Add the new Acceleration vector to the
+      // velocity vector.
+      Vector3.Add( ref SpaceObj.Velocity, ref SpaceObj.Acceleration );
+      }
+
+    ShowStatus( " " );
+    ShowStatus( "Velocity.X: " + Earth.Velocity.X.ToString( "N2" ));
+    ShowStatus( "Velocity.Y: " + Earth.Velocity.Y.ToString( "N2" ));
+    ShowStatus( "Velocity.Z: " + Earth.Velocity.Z.ToString( "N2" ));
+    ShowStatus( " " );
+
+
+    Earth.AddTimeStepRotateAngle();
+
+    // Earth.SetPlanetGravityAcceleration( this );
+
+    // Move Earth only:
+    // Earth.MakeNewGeometryModel();
+    // ResetGeometryModels();
+
+    // Move all of the planets:
+    MakeNewGeometryModels();
+    }
+
+
+
+  internal Vector3.Vector GetEarthScaledPosition()
+    {
+    Vector3.Vector ScaledPos;
+
+    ScaledPos.X = Earth.Position.X * ModelConstants.ThreeDSizeScale;
+    ScaledPos.Y = Earth.Position.Y * ModelConstants.ThreeDSizeScale;
+    ScaledPos.Z = Earth.Position.Z * ModelConstants.ThreeDSizeScale;
+
+    return ScaledPos;
+    }
+
+
+
+  internal void SetEarthPositionToZero()
+    {
+    Earth.Position.X = 0;
+    Earth.Position.Y = 0;
+    Earth.Position.Z = 0;
+
+    // Make a new Earth geometry model before
+    // calling this:
+    // ResetGeometryModels();
+
+    MakeNewGeometryModels();
+    }
+
 
 
 
