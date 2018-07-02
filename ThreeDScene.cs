@@ -471,7 +471,7 @@ namespace ClimateModel
     SetCameraTo( Pos.X,
                  Pos.Y,
                  Pos.Z,
-                     -1,
+                     1,
                      0,
                      0,
                      0,
