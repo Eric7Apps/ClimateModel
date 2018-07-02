@@ -1,6 +1,6 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
 
 
 // Shakespeare: "There is a tide in the affairs of
@@ -26,46 +26,33 @@ namespace ClimateModel
 {
   class EarthGeoid : SpaceObject
   {
-  private MainForm MForm;
   internal string TextureFileName = "";
   private MeshGeometry3D Surface;
-  private GeometryModel3D GeoMod;
+  private GeometryModel3D GeometryMod;
   private EarthSlice[] EarthSliceArray;
-  private int LastVertexIndex = 0;
+  private int LastGraphicsIndex = 0;
   internal double LongitudeHoursRadians = 0; // Time change.
 
 
 
-  private EarthGeoid()
+
+  internal EarthGeoid( MainForm UseForm,
+                       string UseName,
+                       string JPLFileName
+                       ): base( UseForm,
+                                UseName,
+                                JPLFileName )
     {
-    }
-
-
-
-  internal EarthGeoid( MainForm UseForm )
-    {
-    MForm = UseForm;
-
     AllocateEarthSliceArrays();
 
-    GeoMod = new GeometryModel3D();
-    }
-
-
-
-  private void ShowStatus( string ToShow )
-    {
-    if( MForm == null )
-      return;
-
-    MForm.ShowStatus( ToShow );
+    GeometryMod = new GeometryModel3D();
     }
 
 
 
   internal override GeometryModel3D GetGeometryModel()
     {
-    return GeoMod;
+    return GeometryMod;
     }
 
 
@@ -82,8 +69,8 @@ namespace ClimateModel
 
     // if( Surface == null )
 
-    GeoMod.Geometry = Surface;
-    GeoMod.Material = SolidMat;
+    GeometryMod.Geometry = Surface;
+    GeometryMod.Material = SolidMat;
     }
     catch( Exception Except )
       {
@@ -98,13 +85,13 @@ namespace ClimateModel
     // Imaging Namespace:
     // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging?view=netframework-4.7.1
 
-    // ImageDrawing:
-    // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imagedrawing?view=netframework-4.7.1
-
     BitmapImage BMapImage = new BitmapImage();
 
     // Things have to be in this Begin-end block.
     BMapImage.BeginInit();
+
+    // StreamSource:
+    // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.bitmapimage.streamsource?view=netframework-4.7.2#System_Windows_Media_Imaging_BitmapImage_StreamSource
 
     BMapImage.UriSource = new Uri( TextureFileName );
 
@@ -118,6 +105,7 @@ namespace ClimateModel
     ImgBrush.ImageSource = BMapImage;
     return ImgBrush;
     }
+
 
 
 
@@ -138,7 +126,8 @@ namespace ClimateModel
 
 
   private void AddSurfaceVertex(
-                      EarthSlice.ReferenceVertex RefVertex,
+                      Vector3.Vector RefPosition,
+                      Vector3.Vector RefNormal,
                       EarthSlice.LatLongPosition Pos )
     {
     // Surface.Positions.Count
@@ -147,9 +136,9 @@ namespace ClimateModel
     // Surface.Positions.Clear(); Removes all values.
 
     // Use a scale for drawing.
-    double ScaledX = (Position.X + RefVertex.Position.X) * ModelConstants.ThreeDSizeScale;
-    double ScaledY = (Position.Y + RefVertex.Position.Y) * ModelConstants.ThreeDSizeScale;
-    double ScaledZ = (Position.Z + RefVertex.Position.Z) * ModelConstants.ThreeDSizeScale;
+    double ScaledX = (Position.X + RefPosition.X) * ModelConstants.ThreeDSizeScale;
+    double ScaledY = (Position.Y + RefPosition.Y) * ModelConstants.ThreeDSizeScale;
+    double ScaledZ = (Position.Z + RefPosition.Z) * ModelConstants.ThreeDSizeScale;
     Point3D VertexP = new Point3D( ScaledX, ScaledY, ScaledZ );
     Surface.Positions.Add( VertexP );
 
@@ -171,9 +160,10 @@ namespace ClimateModel
     Point TexturePoint = new Point( Pos.TextureX, Pos.TextureY );
     Surface.TextureCoordinates.Add( TexturePoint );
 
-    Vector3D SurfaceNormal = new Vector3D( Pos.SurfaceNormal.X, Pos.SurfaceNormal.Y, Pos.SurfaceNormal.Z );
+    Vector3D SurfaceNormal = new Vector3D( RefNormal.X, RefNormal.Y, RefNormal.Z );
     Surface.Normals.Add( SurfaceNormal );
     }
+
 
 
 
@@ -195,15 +185,16 @@ namespace ClimateModel
     EarthSliceArray = new EarthSlice[EarthSlice.VertexRowsLast];
     for( int Count = 0; Count < EarthSlice.VertexRowsLast; Count++ )
       {
-      EarthSliceArray[Count] = new EarthSlice( MForm );
+      EarthSliceArray[Count] = new
+                  EarthSlice( MForm );
       }
 
     // Allocate the two poles:
     EarthSliceArray[0].
-               AllocateVertexArrays( 1, 1 );
+               AllocateArrays( 1, 1 );
 
     EarthSliceArray[EarthSlice.VertexRowsLast - 1].
-               AllocateVertexArrays( 1, 1 );
+               AllocateArrays( 1, 1 );
 
     // Start with the 4 vertexes right next to the
     // north pole.
@@ -211,7 +202,7 @@ namespace ClimateModel
     for( int Index = 1; Index <= EarthSlice.VertexRowsMiddle; Index++ )
       {
       EarthSliceArray[Index].
-               AllocateVertexArrays( HowMany, HowMany );
+               AllocateArrays( HowMany, HowMany );
 
       if( HowMany < EarthSlice.MaximumVertexesPerRow )
         HowMany = HowMany * 2;
@@ -223,7 +214,7 @@ namespace ClimateModel
     for( int Index = EarthSlice.VertexRowsLast - 2; Index > EarthSlice.VertexRowsMiddle; Index-- )
       {
       EarthSliceArray[Index].
-               AllocateVertexArrays( HowMany, HowMany );
+               AllocateArrays( HowMany, HowMany );
 
       if( HowMany < EarthSlice.MaximumVertexesPerRow )
         HowMany = HowMany * 2;
@@ -243,44 +234,54 @@ namespace ClimateModel
     {
     try
     {
-    // MaxZDiff = 0;
-    LastVertexIndex = 0;
+    LastGraphicsIndex = 0;
 
     Surface = new MeshGeometry3D();
 
     double ApproxLatitude = 90.0;
 
-    LastVertexIndex = EarthSliceArray[0].
-                           MakeSurfaceVertexRow(
+    LastGraphicsIndex =
+    EarthSliceArray[0].MakeSurfaceVertexRow(
                            ApproxLatitude,
                            LongitudeHoursRadians,
-                           LastVertexIndex );
+                           LastGraphicsIndex );
 
     EarthSlice.LatLongPosition PosNorthPole =
                            EarthSliceArray[0].
                            GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex RefVertexNorthPole =
-       EarthSliceArray[0].GetRefVertex( 0, 0 );
+    Vector3.Vector PositionNorthPole =
+              EarthSliceArray[0].GetPosition( 0, 0 );
+
+    Vector3.Vector NormalNorthPole =
+              EarthSliceArray[0].GetSurfaceNormal( 0, 0 );
 
 
     ApproxLatitude = -90.0;
-    LastVertexIndex = EarthSliceArray[EarthSlice.VertexRowsLast - 1].
+    LastGraphicsIndex =
+    EarthSliceArray[EarthSlice.VertexRowsLast - 1].
                              MakeSurfaceVertexRow(
                              ApproxLatitude,
                              LongitudeHoursRadians,
-                             LastVertexIndex );
+                             LastGraphicsIndex );
 
     EarthSlice.LatLongPosition PosSouthPole =
                EarthSliceArray[EarthSlice.VertexRowsLast - 1].
                GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex RefVertexSouthPole =
-               EarthSliceArray[EarthSlice.VertexRowsLast - 1].
-               GetRefVertex( 0, 0 );
+    Vector3.Vector PositionSouthPole =
+              EarthSliceArray[EarthSlice.VertexRowsLast - 1].GetPosition( 0, 0 );
 
-    AddSurfaceVertex( RefVertexNorthPole, PosNorthPole );
-    AddSurfaceVertex( RefVertexSouthPole, PosSouthPole );
+    Vector3.Vector NormalSouthPole =
+              EarthSliceArray[EarthSlice.VertexRowsLast - 1].GetSurfaceNormal( 0, 0 );
+
+    AddSurfaceVertex( PositionNorthPole,
+                      NormalNorthPole,
+                      PosNorthPole );
+
+    AddSurfaceVertex( PositionSouthPole,
+                      NormalSouthPole,
+                      PosSouthPole );
 
     double RowLatitude = 90;
     int HowMany = 4;
@@ -292,7 +293,6 @@ namespace ClimateModel
         HowMany = HowMany * 2;
 
       }
-
 
     RowLatitude = -90;
     HowMany = 4;
@@ -310,18 +310,18 @@ namespace ClimateModel
     for( int Index = 0; Index < EarthSlice.VertexRowsLast - 2; Index++ )
       {
       if( EarthSliceArray[Index].
-             GetRefVertexArrayLast() ==
+               GetRefVertexArraySize() ==
              EarthSliceArray[Index + 1].
-             GetRefVertexArrayLast())
+               GetRefVertexArraySize())
         {
         MakeRowTriangles( Index, Index + 1 );
         }
       else
         {
         if( EarthSliceArray[Index].
-             GetRefVertexArrayLast() <
+              GetRefVertexArraySize() <
              EarthSliceArray[Index + 1].
-             GetRefVertexArrayLast())
+              GetRefVertexArraySize())
           {
           MakeDoubleRowTriangles( Index, Index + 1 );
           }
@@ -334,9 +334,10 @@ namespace ClimateModel
     }
     catch( Exception Except )
       {
-      ShowStatus( "Exception in EarthGeoid.MakeSphericalModel(): " + Except.Message );
+      ShowStatus( "Exception in EarthGeoid.MakeGeoidModel(): " + Except.Message );
       }
     }
+
 
 
 
@@ -344,73 +345,73 @@ namespace ClimateModel
     {
     try
     {
-    EarthSlice.ReferenceVertex NorthPole =
-         EarthSliceArray[0].GetRefVertex( 0, 0 );
+    EarthSlice.LatLongPosition NorthPole =
+         EarthSliceArray[0].GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex SouthPole =
-               EarthSliceArray[EarthSlice.VertexRowsLast - 1].
-               GetRefVertex( 0, 0 );
+    EarthSlice.LatLongPosition SouthPole =
+      EarthSliceArray[EarthSlice.VertexRowsLast - 1].
+        GetLatLongPosition( 0 );
 
 
-    EarthSlice.ReferenceVertex Pos1 =
+    EarthSlice.LatLongPosition Pos1 =
                EarthSliceArray[1].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex Pos2 =
+    EarthSlice.LatLongPosition Pos2 =
                EarthSliceArray[1].
-               GetRefVertex( 1, 0 );
+               GetLatLongPosition( 1 );
 
-    EarthSlice.ReferenceVertex Pos3 =
+    EarthSlice.LatLongPosition Pos3 =
                EarthSliceArray[1].
-               GetRefVertex( 2, 0 );
+               GetLatLongPosition( 2 );
 
-    EarthSlice.ReferenceVertex Pos4 =
+    EarthSlice.LatLongPosition Pos4 =
                EarthSliceArray[1].
-               GetRefVertex( 3, 0 );
+               GetLatLongPosition( 3 );
 
     // Counterclockwise winding goes toward the
     // viewer.
 
-    AddSurfaceTriangleIndex( NorthPole.Index,
-                                  Pos1.Index,
-                                  Pos2.Index );
+    AddSurfaceTriangleIndex( NorthPole.GraphicsIndex,
+                                  Pos1.GraphicsIndex,
+                                  Pos2.GraphicsIndex );
 
-    AddSurfaceTriangleIndex( NorthPole.Index,
-                                  Pos2.Index,
-                                  Pos3.Index );
+    AddSurfaceTriangleIndex( NorthPole.GraphicsIndex,
+                                  Pos2.GraphicsIndex,
+                                  Pos3.GraphicsIndex );
 
-    AddSurfaceTriangleIndex( NorthPole.Index,
-                                  Pos3.Index,
-                                  Pos4.Index );
+    AddSurfaceTriangleIndex( NorthPole.GraphicsIndex,
+                                  Pos3.GraphicsIndex,
+                                  Pos4.GraphicsIndex );
 
 
     // South pole:
     Pos1 = EarthSliceArray[EarthSlice.VertexRowsLast - 2].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
     Pos2 = EarthSliceArray[EarthSlice.VertexRowsLast - 2].
-               GetRefVertex( 1, 0 );
+               GetLatLongPosition( 1 );
 
     Pos3 = EarthSliceArray[EarthSlice.VertexRowsLast - 2].
-               GetRefVertex( 2, 0 );
+               GetLatLongPosition( 2 );
 
     Pos4 = EarthSliceArray[EarthSlice.VertexRowsLast - 2].
-               GetRefVertex( 3, 0 );
+               GetLatLongPosition( 3 );
 
 
     // Counterclockwise winding as seen from south
     // of the south pole:
-    AddSurfaceTriangleIndex( SouthPole.Index,
-                                  Pos4.Index,
-                                  Pos3.Index );
+    AddSurfaceTriangleIndex( SouthPole.GraphicsIndex,
+                                  Pos4.GraphicsIndex,
+                                  Pos3.GraphicsIndex );
 
-    AddSurfaceTriangleIndex( SouthPole.Index,
-                                  Pos3.Index,
-                                  Pos2.Index );
+    AddSurfaceTriangleIndex( SouthPole.GraphicsIndex,
+                                  Pos3.GraphicsIndex,
+                                  Pos2.GraphicsIndex );
 
-    AddSurfaceTriangleIndex( SouthPole.Index,
-                                  Pos2.Index,
-                                  Pos1.Index );
+    AddSurfaceTriangleIndex( SouthPole.GraphicsIndex,
+                                  Pos2.GraphicsIndex,
+                                  Pos1.GraphicsIndex );
 
     }
     catch( Exception Except )
@@ -426,10 +427,10 @@ namespace ClimateModel
     try
     {
     int RowLength = EarthSliceArray[FirstRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
     int SecondRowLength = EarthSliceArray[SecondRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
     if( RowLength != SecondRowLength )
       {
@@ -439,34 +440,34 @@ namespace ClimateModel
 
     for( int RowIndex = 0; (RowIndex + 1) < RowLength; RowIndex++ )
       {
-      EarthSlice.ReferenceVertex Pos1 =
+      EarthSlice.LatLongPosition Pos1 =
            EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex, 0 );
+               GetLatLongPosition( RowIndex );
 
-      EarthSlice.ReferenceVertex Pos2 =
+      EarthSlice.LatLongPosition Pos2 =
            EarthSliceArray[SecondRow].
-               GetRefVertex( RowIndex, 0 );
+               GetLatLongPosition( RowIndex );
 
-      EarthSlice.ReferenceVertex Pos3 =
+      EarthSlice.LatLongPosition Pos3 =
            EarthSliceArray[SecondRow].
-               GetRefVertex( RowIndex + 1, 0 );
+               GetLatLongPosition( RowIndex + 1 );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       Pos1 = EarthSliceArray[SecondRow].
-               GetRefVertex( RowIndex + 1, 0 );
+               GetLatLongPosition( RowIndex + 1 );
 
       Pos2 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex + 1, 0 );
+               GetLatLongPosition( RowIndex + 1 );
 
       Pos3 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex, 0 );
+               GetLatLongPosition( RowIndex );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       }
 
@@ -481,15 +482,16 @@ namespace ClimateModel
 
 
 
+
   private bool MakeDoubleRowTriangles( int FirstRow, int DoubleRow )
     {
     try
     {
     int RowLength = EarthSliceArray[FirstRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
     int DoubleRowLength = EarthSliceArray[DoubleRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
 
     if( (RowLength * 2) > DoubleRowLength )
@@ -498,69 +500,69 @@ namespace ClimateModel
       return false;
       }
 
-    EarthSlice.ReferenceVertex Pos1 =
+    EarthSlice.LatLongPosition Pos1 =
           EarthSliceArray[FirstRow].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex Pos2 =
+    EarthSlice.LatLongPosition Pos2 =
           EarthSliceArray[DoubleRow].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex Pos3 =
+    EarthSlice.LatLongPosition Pos3 =
           EarthSliceArray[DoubleRow].
-               GetRefVertex( 1, 0 );
+               GetLatLongPosition( 1 );
 
-    AddSurfaceTriangleIndex( Pos1.Index,
-                             Pos2.Index,
-                             Pos3.Index );
+    AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                             Pos2.GraphicsIndex,
+                             Pos3.GraphicsIndex );
 
     for( int RowIndex = 1; RowIndex < RowLength; RowIndex++ )
       {
       int DoubleRowIndex = RowIndex * 2;
 
       Pos1 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex + 0, 0 );
+               GetLatLongPosition( RowIndex + 0 );
 
       Pos2 = EarthSliceArray[DoubleRow].
-               GetRefVertex( DoubleRowIndex + 0, 0 );
+              GetLatLongPosition( DoubleRowIndex + 0 );
 
       Pos3 = EarthSliceArray[DoubleRow].
-               GetRefVertex( DoubleRowIndex + 1, 0 );
+              GetLatLongPosition( DoubleRowIndex + 1 );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       // 0  1  2  3  4  5  6  7
       // 01 23 45 67 89 01 23 45
 
       Pos1 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex + 0, 0 );
+               GetLatLongPosition( RowIndex + 0 );
 
       Pos2 = EarthSliceArray[DoubleRow].
-               GetRefVertex( DoubleRowIndex - 1, 0 );
+              GetLatLongPosition( DoubleRowIndex - 1 );
 
       Pos3 = EarthSliceArray[DoubleRow].
-               GetRefVertex( DoubleRowIndex, 0 );
+              GetLatLongPosition( DoubleRowIndex );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       // 0  1  2  3  4  5  6  7
       // 01 23 45 67 89 01 23 45
       Pos1 = EarthSliceArray[DoubleRow].
-               GetRefVertex( DoubleRowIndex - 1, 0 );
+             GetLatLongPosition( DoubleRowIndex - 1 );
 
       Pos2 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex, 0 );
+             GetLatLongPosition( RowIndex );
 
       Pos3 = EarthSliceArray[FirstRow].
-               GetRefVertex( RowIndex - 1, 0 );
+             GetLatLongPosition( RowIndex - 1 );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       }
 
@@ -575,15 +577,16 @@ namespace ClimateModel
 
 
 
+
   private bool MakeDoubleReverseRowTriangles( int BottomRow, int DoubleRow )
     {
     try
     {
     int RowLength = EarthSliceArray[BottomRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
     int DoubleRowLength = EarthSliceArray[DoubleRow].
-                        GetRefVertexArrayLast();
+                        GetRefVertexArraySize();
 
     if( (RowLength * 2) > DoubleRowLength )
       {
@@ -591,70 +594,70 @@ namespace ClimateModel
       return false;
       }
 
-    EarthSlice.ReferenceVertex Pos1 =
+    EarthSlice.LatLongPosition Pos1 =
                EarthSliceArray[BottomRow].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
-    EarthSlice.ReferenceVertex Pos2 =
+    EarthSlice.LatLongPosition Pos2 =
                EarthSliceArray[DoubleRow].
-               GetRefVertex( 1, 0 );
+               GetLatLongPosition( 1 );
 
-    EarthSlice.ReferenceVertex Pos3 =
+    EarthSlice.LatLongPosition Pos3 =
                EarthSliceArray[DoubleRow].
-               GetRefVertex( 0, 0 );
+               GetLatLongPosition( 0 );
 
-    AddSurfaceTriangleIndex( Pos1.Index,
-                             Pos2.Index,
-                             Pos3.Index );
+    AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                             Pos2.GraphicsIndex,
+                             Pos3.GraphicsIndex );
 
     for( int RowIndex = 1; RowIndex < RowLength; RowIndex++ )
       {
       int DoubleRowIndex = RowIndex * 2;
 
       Pos1 = EarthSliceArray[BottomRow].
-             GetRefVertex( RowIndex, 0 );
+             GetLatLongPosition( RowIndex );
 
       Pos2 = EarthSliceArray[DoubleRow].
-             GetRefVertex( DoubleRowIndex + 1, 0 );
+             GetLatLongPosition( DoubleRowIndex + 1 );
 
       Pos3 = EarthSliceArray[DoubleRow].
-             GetRefVertex( DoubleRowIndex, 0 );
+             GetLatLongPosition( DoubleRowIndex );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
 
       // 0  1  2  3  4  5  6  7
       // 01 23 45 67 89 01 23 45
 
       Pos1 = EarthSliceArray[BottomRow].
-             GetRefVertex( RowIndex + 0, 0 );
+             GetLatLongPosition( RowIndex + 0 );
 
       Pos2 = EarthSliceArray[DoubleRow].
-             GetRefVertex( DoubleRowIndex, 0 );
+             GetLatLongPosition( DoubleRowIndex );
 
       Pos3 = EarthSliceArray[DoubleRow].
-             GetRefVertex( DoubleRowIndex - 1, 0 );
+             GetLatLongPosition( DoubleRowIndex - 1 );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       // 0  1  2  3  4  5  6  7
       // 01 23 45 67 89 01 23 45
       Pos1 = EarthSliceArray[DoubleRow].
-             GetRefVertex( DoubleRowIndex - 1, 0 );
+             GetLatLongPosition( DoubleRowIndex - 1 );
 
       Pos2 = EarthSliceArray[BottomRow].
-             GetRefVertex( RowIndex - 1, 0 );
+             GetLatLongPosition( RowIndex - 1 );
 
       Pos3 = EarthSliceArray[BottomRow].
-             GetRefVertex( RowIndex, 0 );
+             GetLatLongPosition( RowIndex );
 
-      AddSurfaceTriangleIndex( Pos1.Index,
-                               Pos2.Index,
-                               Pos3.Index );
+      AddSurfaceTriangleIndex( Pos1.GraphicsIndex,
+                               Pos2.GraphicsIndex,
+                               Pos3.GraphicsIndex );
 
       }
 
@@ -676,11 +679,11 @@ namespace ClimateModel
     {
     try
     {
-    LastVertexIndex =
-    EarthSliceArray[RowIndex].MakeSurfaceVertexRow(
+    LastGraphicsIndex = EarthSliceArray[RowIndex].
+                  MakeSurfaceVertexRow(
                               ApproxLatitude,
                               LongitudeHoursRadians,
-                              LastVertexIndex );
+                              LastGraphicsIndex );
 
     for( int Count = 0; Count < HowMany; Count++ )
       {
@@ -688,18 +691,23 @@ namespace ClimateModel
                            EarthSliceArray[RowIndex].
                            GetLatLongPosition( Count );
 
-      EarthSlice.ReferenceVertex RefVertex =
-                        EarthSliceArray[RowIndex].
-                        GetRefVertex( Count, 0 );
+      Vector3.Vector RefPosition =
+              EarthSliceArray[RowIndex].GetPosition( Count, 0 );
 
-      AddSurfaceVertex( RefVertex, Pos );
+      Vector3.Vector RefNormal =
+              EarthSliceArray[RowIndex].GetSurfaceNormal( Count, 0 );
+
+      AddSurfaceVertex( RefPosition,
+                        RefNormal,
+                        Pos );
+
       }
 
     return true;
     }
     catch( Exception Except )
       {
-      ShowStatus( "Exception in EarthGeoid.MakeSphericalModel(): " + Except.Message );
+      ShowStatus( "Exception in EarthGeoid.MakeOneVertexRow(): " + Except.Message );
       return false;
       }
     }
@@ -717,6 +725,7 @@ namespace ClimateModel
              (1000 * AngleDelta);
 
     }
+
 
 
 
