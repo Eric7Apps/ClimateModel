@@ -11,7 +11,7 @@
 // Ephemeris Type: VECTORS
 // Coordinate Origin: Solar System Barycenter (SSB) [500@0]
 // Table Settings: output units=KM-S; CSV format=YES
-// Display/Output: plain text
+// Display/Output: plain text (or to a file).
 
 
 
@@ -20,9 +20,6 @@ using System.Text;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
-// using System.Windows.Media;
-// using System.Windows.Media.Media3D;
-// using System.Windows.Media.Imaging;
 
 
 namespace ClimateModel
@@ -37,17 +34,6 @@ namespace ClimateModel
 
   public struct JPLRec
     {
-    // "Julian day is the continuous count of days
-    // since the beginning of the Julian Period and
-    // is used primarily by astronomers."
-    // "starting from noon Universal time, with
-    // Julian day number 0 assigned to the day
-    // starting at noon on Monday, January 1, 4713 BC,
-    // proleptic Julian calendar (November 24,
-    // 4714 BC, in the proleptic Gregorian calendar)"
-    // "the Julian day number for the day starting
-    // at 12:00 UT on January 1, 2000, was 2 451 545."
-
     // This would be at midnight Universal Time
     // because of the .5.
     // 2458282.500000000
@@ -63,12 +49,9 @@ namespace ClimateModel
     public double VelocityX; // VX,
     public double VelocityY; // VY,
     public double VelocityZ; // VZ,
-    
-    // ===== Check on these values.
-    // ModelConstants.SpeedOfLight 
-    public double LightTime; //  LT     One-way down-leg Newtonian light-time (sec)
-    public double Range;   //  RG  Range; distance from coordinate center (km).
-    public double RangeRate; //  RR  Range-rate; radial velocity wrt coord. center (km/sec).
+    public double LightTime; //  LT
+    public double Range;   //  RG Range
+    public double RangeRate; //  RR Range-rate
     }
 
 
@@ -110,8 +93,6 @@ namespace ClimateModel
     try
     {
     bool IsInsideData = false;
-    // using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
-    // int Lines = 0;
     using( StreamReader SReader = new StreamReader( FileName ))
       {
       while( SReader.Peek() >= 0 )
@@ -140,10 +121,6 @@ namespace ClimateModel
 
         if( !IsInsideData )
           continue;
-
-        // Lines++;
-        // if( Lines > 100 )
-          // break;
 
         // ShowStatus( Line );
 
@@ -188,15 +165,13 @@ namespace ClimateModel
         Rec.RangeRate *= 1000.0d;
 
         AddJPLRec( Rec );
-
-        // ShowStatus( Rec.Date + " Range: " + Rec.Range.ToString( "N4" ));
         }
       }
 
-    ShowStatus( " " );
-    ShowStatus( "Loaded file:" );
-    ShowStatus( FileName );
-    ShowStatus( "Records: " + JPLRecArrayLast.ToString( "N0" ));
+    // ShowStatus( " " );
+    // ShowStatus( "Loaded file:" );
+    // ShowStatus( FileName );
+    // ShowStatus( "Records: " + JPLRecArrayLast.ToString( "N0" ));
     }
     catch( Exception Except )
       {
@@ -364,6 +339,7 @@ namespace ClimateModel
     // reasonable value.
     long NearestValue = (long)BigDate.GetIndex();
 
+    // This could be a binary search on sorted data.
     int NearestIndex = 0;
     for( int Count = 0; Count < JPLRecArrayLast; Count++ )
       {
