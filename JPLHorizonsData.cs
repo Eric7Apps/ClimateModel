@@ -20,6 +20,7 @@ using System.Text;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Forms;
 
 
 namespace ClimateModel
@@ -29,7 +30,7 @@ namespace ClimateModel
   private MainForm MForm;
   private JPLRec[] JPLRecArray;
   private int JPLRecArrayLast = 0;
-
+  private string FileName = "";
 
 
   public struct JPLRec
@@ -81,8 +82,9 @@ namespace ClimateModel
 
 
 
-  internal void ReadFromTextFile( string FileName )
+  internal void ReadFromTextFile( string UseFileName )
     {
+    FileName = UseFileName;
     if( !File.Exists( FileName ))
       {
       ShowStatus( "The file does not exist." );
@@ -214,9 +216,10 @@ namespace ClimateModel
     double SecondsD = GetDoubleValue( SplitS[2] );
 
     int Second = (int)Math.Truncate( SecondsD );
-    SecondsD -= Second;
-    SecondsD = SecondsD * 1000;
-    int Millisecond = (int)Math.Truncate( SecondsD );
+
+    // SecondsD -= Second;
+    // SecondsD = SecondsD * 1000;
+    int Millisecond = 0; // (int)Math.Truncate( SecondsD );
 
     ECTime RecTime = new ECTime();
     RecTime.SetUTCTime( Year,
@@ -273,7 +276,7 @@ namespace ClimateModel
     if( MonthName == "Dec" )
       return 12;
 
-    return 0;
+    return 99;
     }
 
 
@@ -354,6 +357,9 @@ namespace ClimateModel
         NearestIndex = Count;
         }
       }
+
+    if( NearestIndex > (JPLRecArrayLast - 10))
+      MessageBox.Show( "Need new data for: " + FileName, "Need Data", MessageBoxButtons.OK, MessageBoxIcon.Stop );
 
     return JPLRecArray[NearestIndex];
     }
