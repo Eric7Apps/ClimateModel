@@ -23,6 +23,7 @@ namespace ClimateModel
   private PlanetSphere Sun;
   private EarthGeoid Earth;
   private PlanetSphere Moon;
+  private PlanetSphere SpaceStation;
 
   // private ECTime SunTime; // Local time.
   // private ECTime SpringTime; // Spring Equinox.
@@ -119,19 +120,9 @@ namespace ClimateModel
     // Earth:
     JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLEarth.txt";
     Earth = new EarthGeoid( MForm, "Earth", JPLFileName );
-    // Shift the time of day:
-    // If I make this 3 then the Earth rotates to
-    // the east by 3 hours.  (The sun moves to the
-    // west three hours toward sunset.)
-    Earth.LongitudeHoursRadians = 0;
     Earth.Mass = ModelConstants.MassOfEarth;
     Earth.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\earth.jpg";
     AddSpaceObject( Earth );
-    // Earth orbit in days: 365.256
-    // const double VelocityPerDay =
-    //   ModelConstants.EarthOrbitCircumference / 365.256d;
-    // const double VelocityPerHour =
-    //                    VelocityPerDay / 24d;
 
     // Moon:
     JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLMoon.txt";
@@ -141,6 +132,18 @@ namespace ClimateModel
     Moon.Mass = ModelConstants.MassOfMoon;
     Moon.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\moon.jpg";
     AddSpaceObject( Moon );
+
+    // Space Station:
+    // Both Earth and the Space Station need to be
+    // using the same time intervals for the JPL
+    // data.
+    JPLFileName = "C:\\Eric\\ClimateModel\\EphemerisData\\JPLSpaceStation.txt";
+    SpaceStation = new PlanetSphere( MForm, "Space Station", false, JPLFileName );
+    // It's about 418 kilometers above the Earth.
+    SpaceStation.Radius = 400000; // 418000;
+    SpaceStation.Mass = 1.0;
+    SpaceStation.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\TestImage2.jpg";
+    AddSpaceObject( SpaceStation );
 
 
     // Mercury:
@@ -196,16 +199,104 @@ namespace ClimateModel
     Saturn.TextureFileName = "C:\\Eric\\ClimateModel\\bin\\Release\\Saturn.jpg";
     AddSpaceObject( Saturn );
 
+    SetJPLTimesNow();
 
-    ECTime RightNow = new ECTime();
-    RightNow.SetToNow();
-    SetToJPLTimePosition( RightNow.GetIndex() );
     }
     catch( Exception Except )
       {
       MForm.ShowStatus( "Exception in SolarSystem.AddMercury(): " + Except.Message );
       }
     }
+
+
+
+  internal void SetJPLTimesNow()
+    {
+    ECTime RightNow = new ECTime();
+    RightNow.SetToNow();
+    SetToJPLTimePosition( RightNow.GetIndex() );
+
+    SetEarthRotationAngle();
+
+    MakeNewGeometryModels();
+    }
+
+
+
+  private void SetEarthRotationAngle()
+    {
+    Vector3.Vector EarthToSun = new Vector3.Vector();
+    Vector3.Vector AlongX = new Vector3.Vector();
+    AlongX.X = 1;
+    AlongX.Y = 0;
+    AlongX.Z = 0;
+
+    ShowStatus( " " );
+
+    EarthToSun = Earth.Position;
+
+    // Make a vector that goes from the Earth to
+    // the center of the coordinate system.
+    EarthToSun = Vector3.Negate( EarthToSun );
+
+    // Add the vector from the center of the
+    // coordinate system to the sun.
+    EarthToSun = Vector3.Add( EarthToSun, Sun.Position );
+
+    // This is now the vector from the Earth to the
+    // sun.  Do this same thing to get a vector from
+    // the Earth to the Moon.  Or anything else.
+
+    // Set Z to zero so it's only the rotation
+    // around the Z axis.
+    EarthToSun.Z = 0;
+
+    ShowStatus( "EarthToSun.X: " + EarthToSun.X.ToString( "N2" ));
+    ShowStatus( "EarthToSun.Y: " + EarthToSun.Y.ToString( "N2" ));
+    // ShowStatus( "EarthToSun.Z: " + EarthToSun.Z.ToString( "N2" ));
+
+    EarthToSun = Vector3.Normalize( EarthToSun );
+
+    // The dot product of two normalized vectors.
+    double Dot = Vector3.DotProduct(
+                              AlongX,
+                              EarthToSun );
+
+    double SunAngle = Math.Acos( Dot );
+    double HalfPi = Math.PI / 2.0;
+    ShowStatus( "Dot: " + Dot.ToString( "N2" ));
+    ShowStatus( "SunAngle: " + SunAngle.ToString( "N2" ));
+    ShowStatus( "HalfPi: " + HalfPi.ToString( "N2" ));
+
+    // EarthToSun.X: -68,463,078,802.05
+    // EarthToSun.Y: 135,732,403,641.45
+    // EarthToSun.Z: 0.00
+    // Dot: -0.45
+    // SunAngle: 2.04
+    // HalfPi: 1.57
+    // Hours: 6.93
+
+    ECTime RightNow = new ECTime();
+    RightNow.SetToNow();
+    double Hours = RightNow.GetHour();
+    double Minutes = RightNow.GetMinute();
+    Minutes = Minutes / 60.0d;
+    Hours = Hours + Minutes;
+    Hours -= 12.0;
+    ShowStatus( "Hours: " + Hours.ToString( "N2" ));
+
+    double HoursInRadians = NumbersEC.DegreesToRadians( Hours * (360.0d / 24.0d) );
+    Earth.UTCTimeRadians = HoursInRadians + SunAngle;
+    // Earth.UTCTimeRadians = SunAngle;
+
+    // Make a new Earth geometry model before
+    // calling reset.
+    Earth.MakeNewGeometryModel();
+    ResetGeometryModels();
+
+    // MakeNewGeometryModels();
+    }
+
 
 
 
@@ -363,7 +454,7 @@ namespace ClimateModel
   internal void RotateView()
     {
     double AddHours = NumbersEC.DegreesToRadians( 0.5 * (360.0d / 24.0d) );
-    Earth.LongitudeHoursRadians = Earth.LongitudeHoursRadians + AddHours;
+    Earth.UTCTimeRadians = Earth.UTCTimeRadians + AddHours;
     Earth.MakeNewGeometryModel();
     ResetGeometryModels();
     }
@@ -385,7 +476,7 @@ namespace ClimateModel
     for( int Count = 0; Count < SpaceObjectArrayLast; Count++ )
       {
       SpaceObject SpaceObj = SpaceObjectArray[Count];
-      Vector3.SetZero( ref SpaceObj.Acceleration );
+      SpaceObj.Acceleration = Vector3.MakeZero();
 
       for( int Count2 = 0; Count2 < SpaceObjectArrayLast; Count2++ )
         {
@@ -393,10 +484,10 @@ namespace ClimateModel
         if( FarAwaySpaceObj.Mass < 1 )
           throw( new Exception( "The space object has no mass." ));
 
-        Vector3.Copy( ref AccelVector, ref FarAwaySpaceObj.Position );
-        Vector3.Subtract( ref AccelVector, ref SpaceObj.Position );
+        AccelVector = FarAwaySpaceObj.Position;
+        AccelVector = Vector3.Subtract( AccelVector, SpaceObj.Position );
 
-        double Distance = Vector3.Norm( ref AccelVector );
+        double Distance = Vector3.Norm( AccelVector );
 
         // Check if it's the same planet at zero
         // distance.
@@ -408,14 +499,14 @@ namespace ClimateModel
              FarAwaySpaceObj.Mass) /
              (Distance * Distance);
 
-        Vector3.Normalize( ref AccelVector, AccelVector );
-        Vector3.MultiplyWithScalar( ref AccelVector, Acceleration );
-        Vector3.Add( ref SpaceObj.Acceleration, ref AccelVector );
+        AccelVector = Vector3.Normalize( AccelVector );
+        AccelVector = Vector3.MultiplyWithScalar( AccelVector, Acceleration );
+        SpaceObj.Acceleration = Vector3.Add( SpaceObj.Acceleration, AccelVector );
         }
 
       // Add the new Acceleration vector to the
       // velocity vector.
-      Vector3.Add( ref SpaceObj.Velocity, ref SpaceObj.Acceleration );
+      SpaceObj.Velocity = Vector3.Add( SpaceObj.Velocity, SpaceObj.Acceleration );
       }
 
     ShowStatus( " " );
