@@ -154,7 +154,7 @@ namespace ClimateModel
     Result.SurfaceNormal.X = Result.X;
     Result.SurfaceNormal.Y = Result.Y;
     Result.SurfaceNormal.Z = Result.Z;
-    Vector3.Normalize( ref Result.SurfaceNormal, Result.SurfaceNormal );
+    Result.SurfaceNormal = Vector3.Normalize( Result.SurfaceNormal );
 
     Result.X += Position.X;
     Result.Y += Position.Y;
