@@ -268,6 +268,14 @@ namespace ClimateModel
         return;
         }
 
+      if( e.KeyCode == Keys.J )
+        {
+        Scene.SolarS.SetJPLTimesNow();
+        Scene.MoveToEarthView();
+        return;
+        }
+
+
       if( e.KeyCode == Keys.Left )
         {
         Scene.RotateLeftRight( -Angle );
