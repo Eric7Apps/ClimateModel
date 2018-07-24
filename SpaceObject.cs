@@ -67,11 +67,10 @@ namespace ClimateModel
   internal void SetNextPositionFromVelocity(
                                   double TimeDelta )
     {
-    Vector3.Vector MoveBy = new Vector3.Vector();
-    Vector3.Copy( ref MoveBy, ref Velocity );
+    Vector3.Vector MoveBy = Velocity;
     // It moves by this much in TimeDelta time.
-    Vector3.MultiplyWithScalar( ref MoveBy, TimeDelta );
-    Vector3.Add( ref Position, ref MoveBy );
+    MoveBy = Vector3.MultiplyWithScalar( MoveBy, TimeDelta );
+    Position = Vector3.Add( Position, MoveBy );
     }
 
 
