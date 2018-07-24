@@ -31,7 +31,7 @@ namespace ClimateModel
   private GeometryModel3D GeometryMod;
   private EarthSlice[] EarthSliceArray;
   private int LastGraphicsIndex = 0;
-  internal double LongitudeHoursRadians = 0; // Time change.
+  internal double UTCTimeRadians = 0;
 
 
 
@@ -244,7 +244,7 @@ namespace ClimateModel
     LastGraphicsIndex =
     EarthSliceArray[0].MakeSurfaceVertexRow(
                            ApproxLatitude,
-                           LongitudeHoursRadians,
+                           UTCTimeRadians,
                            LastGraphicsIndex );
 
     EarthSlice.LatLongPosition PosNorthPole =
@@ -258,7 +258,7 @@ namespace ClimateModel
               EarthSliceArray[0].GetSurfaceNormal( 0, 0 );
 
     double TextureY = EarthSliceArray[0].GetTextureY();
- 
+
     AddSurfaceVertex( PositionNorthPole,
                       NormalNorthPole,
                       PosNorthPole,
@@ -269,7 +269,7 @@ namespace ClimateModel
     EarthSliceArray[EarthSlice.VertexRowsLast - 1].
                              MakeSurfaceVertexRow(
                              ApproxLatitude,
-                             LongitudeHoursRadians,
+                             UTCTimeRadians,
                              LastGraphicsIndex );
 
     EarthSlice.LatLongPosition PosSouthPole =
@@ -688,7 +688,7 @@ namespace ClimateModel
     LastGraphicsIndex = EarthSliceArray[RowIndex].
                   MakeSurfaceVertexRow(
                               ApproxLatitude,
-                              LongitudeHoursRadians,
+                              UTCTimeRadians,
                               LastGraphicsIndex );
 
     for( int Count = 0; Count < HowMany; Count++ )
@@ -731,8 +731,8 @@ namespace ClimateModel
     double AngleDelta =
           ModelConstants.EarthRotationAnglePerSecond;
 
-    LongitudeHoursRadians =
-             LongitudeHoursRadians +
+    UTCTimeRadians =
+             UTCTimeRadians +
              (1000 * AngleDelta);
 
     }
