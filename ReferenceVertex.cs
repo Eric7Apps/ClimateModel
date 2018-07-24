@@ -3,10 +3,6 @@
 // https://scientificmodels.blogspot.com/
 
 
-// "IERS Reference Meridian: 102 meters east
-// of the Greenwich meridian."
-
-
 
 using System;
 using System.Text;
@@ -261,19 +257,18 @@ namespace ClimateModel
       Normal.X = Position.X;
       Normal.Y = Position.Y;
       Normal.Z = 0;
-      Vector3.Normalize( ref Normal, Normal );
+      Normal = Vector3.Normalize( Normal );
       return;
       }
 
-    Vector3.Vector PositionAtDelta = new Vector3.Vector();
+    Vector3.Vector PositionAtDelta;
     PositionAtDelta.X = RadiusMajor * (CosLatRadiansPlusDelta * CosLonRadians );
     PositionAtDelta.Y = RadiusMajor * (CosLatRadiansPlusDelta * SinLonRadians );
     PositionAtDelta.Z = RadiusMinor * SinLatRadiansPlusDelta;
 
-    Vector3.Vector Flat = new Vector3.Vector();
-
-    Vector3.Copy( ref Flat, ref PositionAtDelta );
-    Vector3.Subtract( ref Flat, ref Position );
+    Vector3.Vector Flat;
+    Flat = PositionAtDelta;
+    Flat = Vector3.Subtract( Flat, Position );
 
     if( Position.Z > PositionAtDelta.Z )
       throw( new Exception( "Position.Z > PositionAtDelta.Z." ));
@@ -281,31 +276,30 @@ namespace ClimateModel
     if( Flat.Z < 0 )
       throw( new Exception( "Flat.Z < 0." ));
 
-    Vector3.Normalize( ref Flat, Flat );
+    Flat = Vector3.Normalize( Flat );
 
     // Straight up through the north pole.
-    Vector3.Vector StraightUp = new Vector3.Vector();
+    Vector3.Vector StraightUp;
     StraightUp.X = 0;
     StraightUp.Y = 0;
     StraightUp.Z = 1;
 
     // The dot product of two normalized vectors.
-    double Dot = Vector3.DotProduct( ref StraightUp, ref Flat );
+    double Dot = Vector3.DotProduct( StraightUp, Flat );
 
     if( Dot < 0 )
       throw( new Exception( "Dot < 0." ));
 
-    Vector3.Vector PerpenVector = new Vector3.Vector();
     // Make a vector perpendicular to FlatVector and
     // toward StraightUp.
-    Vector3.MakePerpendicular( ref PerpenVector,
-                               ref Flat,
-                               ref StraightUp );
+    Vector3.Vector PerpenVector =
+              Vector3.MakePerpendicular( Flat,
+                                         StraightUp );
 
     if( Position.Z < 0 )
-      Vector3.Negate( ref PerpenVector );
+      PerpenVector = Vector3.Negate( PerpenVector );
 
-    Vector3.Copy( ref Normal, ref PerpenVector );
+    Normal = PerpenVector;
     }
 
 
@@ -370,9 +364,8 @@ namespace ClimateModel
     PositionAtDelta.Y = RadiusMajor * (CosLatRadiansPlusDelta * SinLonRadians );
     PositionAtDelta.Z = RadiusMinor * SinLatRadiansPlusDelta;
 
-    Vector3.Vector Flat = new Vector3.Vector();
-    Vector3.Copy( ref Flat, ref PositionAtDelta );
-    Vector3.Subtract( ref Flat, ref Position );
+    Vector3.Vector Flat = PositionAtDelta;
+    Flat = Vector3.Subtract( Flat, Position );
 
     if( Position.Z > PositionAtDelta.Z )
       throw( new Exception( "Position.Z > PositionAtDelta.Z." ));
@@ -380,12 +373,12 @@ namespace ClimateModel
     if( Flat.Z < 0 )
       throw( new Exception( "Flat.Z < 0." ));
 
-    Vector3.Normalize( ref Flat, Flat );
+    Flat = Vector3.Normalize( Flat );
 
     // The dot product of two normalized vectors.
     double Dot = Vector3.DotProduct(
-                              ref StraightUp,
-                              ref Flat );
+                              StraightUp,
+                              Flat );
 
     if( Dot < 0 )
       throw( new Exception( "Dot < 0." ));
