@@ -1,10 +1,11 @@
 // Copyright Eric Chauvin 2018.
 // My blog is at:
-// ericsourcecode.blogspot.com
+// https://scientificmodels.blogspot.com/
+
 
 
 using System;
-using System.Text;
+// using System.Text;
 
 
 namespace ClimateModel
@@ -24,53 +25,51 @@ namespace ClimateModel
 
 
 
-  internal static void SetZero( ref Vector3.Vector Result )
+  internal static Vector MakeZero()
     {
+    Vector Result;
+
     Result.X = 0;
     Result.Y = 0;
     Result.Z = 0;
+
+    return Result;
     }
 
 
 
-  internal static void Negate( ref Vector3.Vector Result )
+  internal static Vector Negate( Vector In )
     {
-    Result.X = -Result.X;
-    Result.Y = -Result.Y;
-    Result.Z = -Result.Z;
+    In.X = -In.X;
+    In.Y = -In.Y;
+    In.Z = -In.Z;
+
+    return In;
     }
 
 
 
-  internal static void Copy( ref Vector3.Vector Result, ref Vector3.Vector In )
+  internal static Vector Add( Vector Left, Vector Right )
     {
-    Result.X = In.X;
-    Result.Y = In.Y;
-    Result.Z = In.Z;
+    Left.X += Right.X;
+    Left.Y += Right.Y;
+    Left.Z += Right.Z;
+    return Left;
     }
 
 
 
-  internal static void Add( ref Vector3.Vector Result, ref Vector3.Vector In )
+  internal static Vector Subtract( Vector Left, Vector Right )
     {
-    Result.X += In.X;
-    Result.Y += In.Y;
-    Result.Z += In.Z;
+    Left.X -= Right.X;
+    Left.Y -= Right.Y;
+    Left.Z -= Right.Z;
+    return Left;
     }
 
 
 
-  internal static void Subtract( ref Vector3.Vector Result, ref Vector3.Vector In )
-    {
-    Result.X -= In.X;
-    Result.Y -= In.Y;
-    Result.Z -= In.Z;
-    }
-
-
-
-
-  internal static double NormSquared( ref Vector3.Vector In )
+  internal static double NormSquared( Vector In )
     {
     double NS = (In.X * In.X) +
                 (In.Y * In.Y) +
@@ -81,15 +80,15 @@ namespace ClimateModel
 
 
 
-  internal static double Norm( ref Vector3.Vector In )
+  internal static double Norm( Vector In )
     {
-    double NSquared = NormSquared( ref In );
+    double NSquared = NormSquared( In );
     return Math.Sqrt( NSquared );
     }
 
 
 
-  internal static void Normalize( ref Vector3.Vector Result, Vector3.Vector In )
+  internal static Vector Normalize( Vector In )
     {
     double Length = (In.X * In.X) +
                     (In.Y * In.Y) +
@@ -99,29 +98,31 @@ namespace ClimateModel
 
     const double SmallNumber = 0.00000000000000000001d;
     if( Length < SmallNumber )
-      throw( new Exception( "Length was too short for Vector3.Normalize()." ));
-
+      return MakeZero();
 
     double Inverse = 1.0d / Length;
 
+    Vector Result;
     Result.X = In.X * Inverse;
     Result.Y = In.Y * Inverse;
     Result.Z = In.Z * Inverse;
+    return Result;
     }
 
 
 
-  internal static void MultiplyWithScalar( ref Vector3.Vector Result, double Scalar )
+  internal static Vector MultiplyWithScalar( Vector In, double Scalar )
     {
-    Result.X = Result.X * Scalar;
-    Result.Y = Result.Y * Scalar;
-    Result.Z = Result.Z * Scalar;
+    Vector Result;
+    Result.X = In.X * Scalar;
+    Result.Y = In.Y * Scalar;
+    Result.Z = In.Z * Scalar;
+    return Result;
     }
 
 
 
-  // https://en.wikipedia.org/wiki/Dot_product
-  internal static double DotProduct( ref Vector3.Vector Left, ref Vector3.Vector Right )
+  internal static double DotProduct( Vector Left, Vector Right )
     {
     double Dot = (Left.X * Right.X) +
                  (Left.Y * Right.Y) +
@@ -137,34 +138,32 @@ namespace ClimateModel
 
 
 
-  internal static void MakePerpendicular( ref Vector3.Vector Result, ref Vector3.Vector A, ref Vector3.Vector B )
+  internal static Vector MakePerpendicular( Vector A, Vector B )
     {
     // A and B are assumed to be already normalized.
     // Make a vector that is perpendicular to A,
     // pointing toward B.
 
-    Vector3.Vector CosineLengthVec = new Vector3.Vector();
-
-    double Dot = DotProduct( ref A, ref B );
-    Copy( ref CosineLengthVec, ref A );
-    MultiplyWithScalar( ref CosineLengthVec, Dot );
+    double Dot = DotProduct( A, B );
+    Vector CosineLengthVec = A;
+    CosineLengthVec = MultiplyWithScalar( CosineLengthVec, Dot );
 
     // CosineLengthVec now points in the same
     // direction as A, but it's shorter.
 
     // CosineLengthVec + Result = B
     // Result = B - CosineLengthVec
-    Copy( ref Result, ref B );
-    Subtract( ref Result, ref CosineLengthVec );
-    Normalize( ref Result, Result );
+    Vector Result = B;
+    Result = Subtract( Result, CosineLengthVec );
+    Result = Normalize( Result );
 
     // They should be orthogonal to each other.
-    double TestDot = DotProduct( ref A, ref Result );
-    if( Math.Abs( TestDot ) > 0.00000001 )
-      throw( new Exception( "TestDot should be zero." ));
+    // double TestDot = DotProduct( A, Result );
+    // if( Math.Abs( TestDot ) > 0.00000001 )
+      // throw( new Exception( "TestDot should be zero." ));
 
+    return Result;
     }
-
 
 
 
